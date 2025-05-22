@@ -17,7 +17,11 @@ interface UploadResponse {
   message: string;
 }
 
-export default function FileUpload() {
+interface FileUploadProps {
+  onResultsStateChange: (showingResults: boolean) => void;
+}
+
+export default function FileUpload({ onResultsStateChange }: FileUploadProps) {
   const [file, setFile] = useState<File | null>(null)
   const [isUploading, setIsUploading] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
@@ -157,6 +161,11 @@ export default function FileUpload() {
       setIsProcessing(false)
     }
   }
+
+  // Notify parent about results state
+  React.useEffect(() => {
+    onResultsStateChange(!!results && !!file)
+  }, [results, file, onResultsStateChange])
 
   if (results && file) {
     return (

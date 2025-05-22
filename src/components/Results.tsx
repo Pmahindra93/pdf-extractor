@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { AlertCircle, CheckCircle2 } from "lucide-react"
+import { AlertCircle, CheckCircle2, RotateCcw } from "lucide-react"
 import { toast } from 'sonner'
 import type { BankStatement } from '../types'
 
@@ -29,20 +29,6 @@ export default function Results({ results, file, onAnalyzeAnother }: ResultsProp
 
   return (
     <div className="w-full max-w-7xl mx-auto">
-      {/* Top right button */}
-      <div className="flex justify-end mb-4">
-        <Button
-          onClick={() => {
-            onAnalyzeAnother()
-            toast.success('Ready for new analysis', {
-              description: 'You can now upload another bank statement'
-            })
-          }}
-          className="bg-blue-600 hover:bg-blue-700"
-        >
-          Analyze Another Statement
-        </Button>
-      </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* PDF Display */}
         <div className="space-y-4">
@@ -178,6 +164,22 @@ export default function Results({ results, file, onAnalyzeAnother }: ResultsProp
             </CardContent>
           </Card>
         </div>
+      </div>
+
+      {/* Start Again button */}
+      <div className="flex justify-center mt-6">
+        <Button
+          onClick={() => {
+            onAnalyzeAnother()
+            toast.success('Ready for new analysis', {
+              description: 'You can now upload another bank statement'
+            })
+          }}
+          className="bg-green-600 hover:bg-green-700 text-white flex items-center gap-2 px-6 py-3"
+        >
+          <RotateCcw size={18} />
+          Start Again
+        </Button>
       </div>
     </div>
   )
