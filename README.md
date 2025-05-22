@@ -50,9 +50,9 @@ A Next.js application that uses AI to extract and analyze data from PDF bank sta
 
    Create a `.env.local` file in the root directory:
    ```env
-   ANTHROPIC_API_KEY=your-anthropic-api-key-here
-   # OR
-   OPENAI_API_KEY=your-openai-api-key-here
+ANTHROPIC_API_KEY=your-anthropic-api-key-here
+# OR
+OPENAI_API_KEY=your-openai-api-key-here
    ```
 
 4. **Start the development server**

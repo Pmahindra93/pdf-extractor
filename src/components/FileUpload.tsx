@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { UploadCloud, AlertCircle, Loader2 } from "lucide-react"
 import { toast } from 'sonner'
 import Results from './Results'
@@ -17,11 +17,7 @@ interface UploadResponse {
   message: string;
 }
 
-interface FileUploadProps {
-  onResultsStateChange: (showingResults: boolean) => void;
-}
-
-export default function FileUpload({ onResultsStateChange }: FileUploadProps) {
+export default function FileUpload() {
   const [file, setFile] = useState<File | null>(null)
   const [isUploading, setIsUploading] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
@@ -162,11 +158,6 @@ export default function FileUpload({ onResultsStateChange }: FileUploadProps) {
     }
   }
 
-  // Notify parent about results state
-  React.useEffect(() => {
-    onResultsStateChange(!!results && !!file)
-  }, [results, file, onResultsStateChange])
-
   if (results && file) {
     return (
       <Results
@@ -182,87 +173,86 @@ export default function FileUpload({ onResultsStateChange }: FileUploadProps) {
   }
 
   return (
-    <div className="w-full max-w-2xl mx-auto">
-      <Card className="w-full">
-        <CardHeader>
-          <CardTitle>Bank Statement Analyzer</CardTitle>
-          <CardDescription>
-            Upload a bank statement PDF to extract key details
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit}>
-            <div
-              className={`border-2 border-dashed rounded-lg p-12 text-center ${
-                isUploading || isProcessing ? 'bg-gray-50 border-gray-300' : 'hover:bg-gray-50 border-gray-300 hover:border-gray-400'
-              }`}
-              onDragOver={handleDragOver}
-              onDrop={handleDrop}
-            >
-              {isUploading ? (
-                <div className="space-y-3">
-                  <Loader2 className="h-10 w-10 animate-spin text-gray-400 mx-auto" />
-                  <p className="text-gray-500">Uploading file...</p>
-                </div>
-              ) : isProcessing ? (
-                <div className="space-y-3">
-                  <Loader2 className="h-10 w-10 animate-spin text-gray-400 mx-auto" />
-                  <p className="text-gray-500">Analyzing document...</p>
-                  <p className="text-xs text-gray-400">This may take up to 30 seconds</p>
-                </div>
-              ) : (
-                <>
-                  <UploadCloud className="h-12 w-12 text-gray-400 mx-auto mb-3" />
-                  <p className="text-gray-700 mb-2">
-                    {file ? file.name : 'Drag and drop your PDF here, or click to browse'}
-                  </p>
-                  {!file && (
-                    <p className="text-sm text-gray-500">
-                      PDF files only, max 10MB
+    <div className="min-h-screen bg-black text-white">
+      <div className="w-full max-w-2xl mx-auto pt-12">
+        <Card className="w-full bg-gray-900 border-gray-700 text-white">
+          <CardContent>
+            <form onSubmit={handleSubmit}>
+              <div
+                className={`border-2 border-dashed rounded-lg p-12 text-center transition-colors ${
+                  isUploading || isProcessing
+                    ? 'bg-gray-800 border-gray-600'
+                    : 'hover:bg-gray-800 border-gray-600 hover:border-gray-500'
+                }`}
+                onDragOver={handleDragOver}
+                onDrop={handleDrop}
+              >
+                {isUploading ? (
+                  <div className="space-y-3">
+                      <Loader2 className="h-10 w-10 animate-spin text-blue-400 mx-auto" />
+                      <p className="text-gray-300">Uploading file...</p>
+                  </div>
+                ) : isProcessing ? (
+                  <div className="space-y-3">
+                      <Loader2 className="h-10 w-10 animate-spin text-blue-400 mx-auto" />
+                      <p className="text-gray-300">Analyzing document...</p>
+                    <p className="text-xs text-gray-400">This may take up to 30 seconds</p>
+                  </div>
+                ) : (
+                  <>
+                    <UploadCloud className="h-12 w-12 text-gray-400 mx-auto mb-3" />
+                      <p className="text-gray-200 mb-2">
+                      {file ? file.name : 'Drag and drop your PDF here, or click to browse'}
                     </p>
-                  )}
-                </>
-              )}
+                    {!file && (
+                        <p className="text-sm text-gray-400">
+                        PDF files only, max 10MB
+                      </p>
+                    )}
+                  </>
+                )}
 
-              {error && (
-                <div className="mt-3 text-red-500 flex items-center justify-center gap-1.5">
-                  <AlertCircle size={16} />
-                  <span>{error}</span>
-                </div>
-              )}
+                {error && (
+                    <div className="mt-3 text-red-400 flex items-center justify-center gap-1.5">
+                    <AlertCircle size={16} />
+                    <span>{error}</span>
+                  </div>
+                )}
 
-              <input
-                type="file"
-                className="hidden"
-                accept="application/pdf"
-                id="file-upload"
-                onChange={handleFileChange}
-                disabled={isUploading || isProcessing}
-              />
-            </div>
-
-            <div className="mt-4 flex justify-center">
-              {!file ? (
-                <Button
-                  type="button"
-                  onClick={() => document.getElementById('file-upload')?.click()}
+                <input
+                  type="file"
+                  className="hidden"
+                  accept="application/pdf"
+                  id="file-upload"
+                  onChange={handleFileChange}
                   disabled={isUploading || isProcessing}
-                >
-                  Select File
-                </Button>
-              ) : (
-                <Button
-                  type="submit"
-                  disabled={isUploading || isProcessing}
-                  className="bg-blue-600 hover:bg-blue-700"
-                >
-                  {isUploading ? 'Uploading...' : isProcessing ? 'Processing...' : 'Analyze Statement'}
-                </Button>
-              )}
-            </div>
-          </form>
-        </CardContent>
-      </Card>
+                />
+              </div>
+
+              <div className="mt-4 flex justify-center">
+                {!file ? (
+                  <Button
+                    type="button"
+                    onClick={() => document.getElementById('file-upload')?.click()}
+                    disabled={isUploading || isProcessing}
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2"
+                  >
+                    Select File
+                  </Button>
+                ) : (
+                  <Button
+                    type="submit"
+                    disabled={isUploading || isProcessing}
+                      className="bg-green-600 hover:bg-green-700 text-white px-6 py-2"
+                  >
+                    {isUploading ? 'Uploading...' : isProcessing ? 'Processing...' : 'Analyze Statement'}
+                  </Button>
+                )}
+              </div>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   )
 }

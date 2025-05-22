@@ -28,158 +28,160 @@ export default function Results({ results, file, onAnalyzeAnother }: ResultsProp
   }, [file])
 
   return (
-    <div className="w-full max-w-7xl mx-auto">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* PDF Display */}
-        <div className="space-y-4">
-          <Card className="h-[600px] flex flex-col">
-            <CardHeader className="flex-shrink-0">
-              <CardTitle>Original Document</CardTitle>
-              <CardDescription>{file.name}</CardDescription>
-            </CardHeader>
-            <CardContent className="flex-1 p-0">
-              <div className="w-full h-full border-0 rounded-lg overflow-hidden">
-                {pdfUrl && (
-                  <iframe
-                    src={pdfUrl}
-                    className="w-full h-full"
-                    title="Bank Statement PDF"
-                  />
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Analysis Results */}
-        <div className="space-y-4">
-          <Card className="w-full h-[600px] flex flex-col">
-            <CardHeader className="flex-shrink-0">
-              <CardTitle className="flex items-center gap-2">
-                <CheckCircle2 className="text-green-500" />
-                Analysis Results
-              </CardTitle>
-              <CardDescription>
-                Here are the extracted details from the bank statement
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="flex-1 overflow-y-auto">
-              <div className="space-y-6">
-                <div>
-                  <h3 className="text-lg font-medium">Account Holder</h3>
-                  <p className="text-gray-700">{results.accountHolder.name}</p>
-                  <p className="text-gray-700 whitespace-pre-line">{results.accountHolder.address}</p>
+    <div className="min-h-screen bg-black text-white p-6">
+      <div className="w-full max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* PDF Display */}
+          <div className="space-y-4">
+            <Card className="h-[600px] flex flex-col bg-gray-900 border-gray-700">
+              <CardHeader className="flex-shrink-0">
+                <CardTitle className="text-white">Original Document</CardTitle>
+                <CardDescription className="text-gray-300">{file.name}</CardDescription>
+              </CardHeader>
+              <CardContent className="flex-1 p-0">
+                <div className="w-full h-full border-0 rounded-lg overflow-hidden">
+                  {pdfUrl && (
+                    <iframe
+                      src={pdfUrl}
+                      className="w-full h-full"
+                      title="Bank Statement PDF"
+                    />
+                  )}
                 </div>
+              </CardContent>
+            </Card>
+          </div>
 
-                {results.documentDate && (
+          {/* Analysis Results */}
+          <div className="space-y-4">
+            <Card className="w-full h-[600px] flex flex-col bg-gray-900 border-gray-700">
+              <CardHeader className="flex-shrink-0">
+                <CardTitle className="flex items-center gap-2 text-white">
+                  <CheckCircle2 className="text-green-400" />
+                  Analysis Results
+                </CardTitle>
+                <CardDescription className="text-gray-300">
+                  Here are the extracted details from the bank statement
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="flex-1 overflow-y-auto">
+                <div className="space-y-6">
                   <div>
-                    <h3 className="text-lg font-medium">Statement Date</h3>
-                    <p className="text-gray-700">{results.documentDate}</p>
+                    <h3 className="text-lg font-medium text-white">Account Holder</h3>
+                    <p className="text-gray-200">{results.accountHolder.name}</p>
+                    <p className="text-gray-200 whitespace-pre-line">{results.accountHolder.address}</p>
                   </div>
-                )}
 
-                <div>
-                  <h3 className="text-lg font-medium">Balance Summary</h3>
-                  <div className="grid grid-cols-2 gap-4 mt-2">
+                  {results.documentDate && (
                     <div>
-                      <p className="text-sm text-gray-500">Starting Balance</p>
-                      <p className="text-lg font-medium">{typeof results.startingBalance === 'number'
-                        ? results.startingBalance.toFixed(2)
-                        : results.startingBalance}</p>
+                      <h3 className="text-lg font-medium text-white">Statement Date</h3>
+                      <p className="text-gray-200">{results.documentDate}</p>
                     </div>
-                    <div>
-                      <p className="text-sm text-gray-500">Ending Balance</p>
-                      <p className="text-lg font-medium">{typeof results.endingBalance === 'number'
-                        ? results.endingBalance.toFixed(2)
-                        : results.endingBalance}</p>
+                  )}
+
+                  <div>
+                    <h3 className="text-lg font-medium text-white">Balance Summary</h3>
+                    <div className="grid grid-cols-2 gap-4 mt-2">
+                      <div>
+                        <p className="text-sm text-gray-400">Starting Balance</p>
+                        <p className="text-lg font-medium text-white">{typeof results.startingBalance === 'number'
+                          ? results.startingBalance.toFixed(2)
+                          : results.startingBalance}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-400">Ending Balance</p>
+                        <p className="text-lg font-medium text-white">{typeof results.endingBalance === 'number'
+                          ? results.endingBalance.toFixed(2)
+                          : results.endingBalance}</p>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <div>
-                  <h3 className="text-lg font-medium">Reconciliation</h3>
-                  <div className={`mt-2 p-3 rounded-md ${results.reconciliation.isReconciled
-                    ? 'bg-green-50 border border-green-200'
-                    : 'bg-red-50 border border-red-200'}`}>
-                    {results.reconciliation.isReconciled
-                      ? <p className="text-green-700 flex items-center gap-2">
-                          <CheckCircle2 size={16} />
-                          Transactions balance matches ending balance
-                        </p>
-                      : <p className="text-red-700 flex items-center gap-2">
-                          <AlertCircle size={16} />
-                          {`Discrepancy found: ${results.reconciliation.discrepancy?.toFixed(2) ?? 'unknown'}`}
-                        </p>
-                    }
+                  <div>
+                    <h3 className="text-lg font-medium text-white">Reconciliation</h3>
+                    <div className={`mt-2 p-3 rounded-md ${results.reconciliation.isReconciled
+                      ? 'bg-green-900/30 border border-green-600'
+                      : 'bg-red-900/30 border border-red-600'}`}>
+                      {results.reconciliation.isReconciled
+                        ? <p className="text-green-300 flex items-center gap-2">
+                            <CheckCircle2 size={16} />
+                            Transactions balance matches ending balance
+                          </p>
+                        : <p className="text-red-300 flex items-center gap-2">
+                            <AlertCircle size={16} />
+                            {`Discrepancy found: ${results.reconciliation.discrepancy?.toFixed(2) ?? 'unknown'}`}
+                          </p>
+                      }
+                    </div>
                   </div>
-                </div>
 
-                <div>
-                  <h3 className="text-lg font-medium">Transactions</h3>
-                  <div className="mt-2 border rounded-md overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                      <thead className="bg-gray-50">
-                        <tr>
-                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
-                          <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-                          <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                          {results.transactions.some(t => t.balance !== undefined) && (
-                            <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Balance</th>
-                          )}
-                        </tr>
-                      </thead>
-                      <tbody className="bg-white divide-y divide-gray-200">
-                        {results.transactions.map((transaction, index) => (
-                          <tr key={index} className="hover:bg-gray-50">
-                            <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900">{transaction.date}</td>
-                            <td className="px-4 py-2 text-sm text-gray-900">{transaction.description}</td>
-                            <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900 text-right">
-                              {typeof transaction.amount === 'number'
-                                ? transaction.amount.toFixed(2)
-                                : transaction.amount}
-                            </td>
-                            <td className="px-4 py-2 whitespace-nowrap text-sm text-right">
-                              <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full
-                                ${transaction.type === 'credit' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                                {transaction.type}
-                              </span>
-                            </td>
+                  <div>
+                    <h3 className="text-lg font-medium text-white">Transactions</h3>
+                    <div className="mt-2 border border-gray-700 rounded-md overflow-x-auto">
+                      <table className="min-w-full divide-y divide-gray-700">
+                        <thead className="bg-gray-800">
+                          <tr>
+                            <th className="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Date</th>
+                            <th className="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Description</th>
+                            <th className="px-4 py-3 text-right text-xs font-medium text-gray-300 uppercase tracking-wider">Amount</th>
+                            <th className="px-4 py-3 text-right text-xs font-medium text-gray-300 uppercase tracking-wider">Type</th>
                             {results.transactions.some(t => t.balance !== undefined) && (
-                              <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900 text-right">
-                                {transaction.balance !== undefined
-                                  ? (typeof transaction.balance === 'number'
-                                      ? transaction.balance.toFixed(2)
-                                      : transaction.balance)
-                                  : '-'}
-                              </td>
+                              <th className="px-4 py-3 text-right text-xs font-medium text-gray-300 uppercase tracking-wider">Balance</th>
                             )}
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                        </thead>
+                        <tbody className="bg-gray-900 divide-y divide-gray-700">
+                          {results.transactions.map((transaction, index) => (
+                            <tr key={index} className="hover:bg-gray-800">
+                              <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-200">{transaction.date}</td>
+                              <td className="px-4 py-2 text-sm text-gray-200">{transaction.description}</td>
+                              <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-200 text-right">
+                                {typeof transaction.amount === 'number'
+                                  ? transaction.amount.toFixed(2)
+                                  : transaction.amount}
+                              </td>
+                              <td className="px-4 py-2 whitespace-nowrap text-sm text-right">
+                                <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full
+                                  ${transaction.type === 'credit' ? 'bg-green-900/50 text-green-300 border border-green-600' : 'bg-red-900/50 text-red-300 border border-red-600'}`}>
+                                  {transaction.type}
+                                </span>
+                              </td>
+                              {results.transactions.some(t => t.balance !== undefined) && (
+                                <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-200 text-right">
+                                  {transaction.balance !== undefined
+                                    ? (typeof transaction.balance === 'number'
+                                        ? transaction.balance.toFixed(2)
+                                        : transaction.balance)
+                                    : '-'}
+                                </td>
+                              )}
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </div>
         </div>
-      </div>
 
-      {/* Start Again button */}
-      <div className="flex justify-center mt-6">
-        <Button
-          onClick={() => {
-            onAnalyzeAnother()
-            toast.success('Ready for new analysis', {
-              description: 'You can now upload another bank statement'
-            })
-          }}
-          className="bg-green-600 hover:bg-green-700 text-white flex items-center gap-2 px-6 py-3"
-        >
-          <RotateCcw size={18} />
-          Start Again
-        </Button>
+        {/* Start Again button */}
+        <div className="flex justify-center mt-6">
+          <Button
+            onClick={() => {
+              onAnalyzeAnother()
+              toast.success('Ready for new analysis', {
+                description: 'You can now upload another bank statement'
+              })
+            }}
+            className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2 px-6 py-3"
+          >
+            <RotateCcw size={18} />
+            Start Again
+          </Button>
+        </div>
       </div>
     </div>
   )
