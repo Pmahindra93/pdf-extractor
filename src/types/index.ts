@@ -12,6 +12,7 @@ export interface BankStatement {
     address: string;
   };
   documentDate?: string;
+  currency: string;
   startingBalance: number;
   endingBalance: number;
   transactions: Transaction[];

@@ -79,20 +79,30 @@ export default function Results({ results, file, onAnalyzeAnother }: ResultsProp
                     </div>
                   )}
 
+                  {/* Add Currency Display */}
+                  <div>
+                    <h3 className="text-lg font-medium text-white">Currency</h3>
+                    <p className="text-gray-200">{results.currency}</p>
+                  </div>
+
                   <div>
                     <h3 className="text-lg font-medium text-white">Balance Summary</h3>
                     <div className="grid grid-cols-2 gap-4 mt-2">
                       <div>
                         <p className="text-sm text-gray-400">Starting Balance</p>
-                        <p className="text-lg font-medium text-white">{typeof results.startingBalance === 'number'
-                          ? results.startingBalance.toFixed(2)
-                          : results.startingBalance}</p>
+                        <p className="text-lg font-medium text-white">
+                          {results.currency} {typeof results.startingBalance === 'number'
+                            ? results.startingBalance.toFixed(2)
+                            : results.startingBalance}
+                        </p>
                       </div>
                       <div>
                         <p className="text-sm text-gray-400">Ending Balance</p>
-                        <p className="text-lg font-medium text-white">{typeof results.endingBalance === 'number'
-                          ? results.endingBalance.toFixed(2)
-                          : results.endingBalance}</p>
+                        <p className="text-lg font-medium text-white">
+                          {results.currency} {typeof results.endingBalance === 'number'
+                            ? results.endingBalance.toFixed(2)
+                            : results.endingBalance}
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -109,7 +119,7 @@ export default function Results({ results, file, onAnalyzeAnother }: ResultsProp
                           </p>
                         : <p className="text-red-300 flex items-center gap-2">
                             <AlertCircle size={16} />
-                            {`Discrepancy found: ${results.reconciliation.discrepancy?.toFixed(2) ?? 'unknown'}`}
+                            {`Discrepancy found: ${results.currency} ${results.reconciliation.discrepancy?.toFixed(2) ?? 'unknown'}`}
                           </p>
                       }
                     </div>
@@ -123,10 +133,10 @@ export default function Results({ results, file, onAnalyzeAnother }: ResultsProp
                           <tr>
                             <th className="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Date</th>
                             <th className="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Description</th>
-                            <th className="px-4 py-3 text-right text-xs font-medium text-gray-300 uppercase tracking-wider">Amount</th>
+                            <th className="px-4 py-3 text-right text-xs font-medium text-gray-300 uppercase tracking-wider">Amount ({results.currency})</th>
                             <th className="px-4 py-3 text-right text-xs font-medium text-gray-300 uppercase tracking-wider">Type</th>
                             {results.transactions.some(t => t.balance !== undefined) && (
-                              <th className="px-4 py-3 text-right text-xs font-medium text-gray-300 uppercase tracking-wider">Balance</th>
+                              <th className="px-4 py-3 text-right text-xs font-medium text-gray-300 uppercase tracking-wider">Balance ({results.currency})</th>
                             )}
                           </tr>
                         </thead>

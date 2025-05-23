@@ -65,16 +65,19 @@ You are a financial document analysis AI specializing in banking statements. I w
 
 1. Name and address of the account holder
 2. Date of the document (if present)
-3. A list of all transactions with:
+3. Currency of the statement (look for currency symbols like $, €, £, ¥ or currency codes like USD, EUR, GBP, JPY)
+4. A list of all transactions with:
    - Date
    - Description
-   - Amount
+   - Amount (ALWAYS as a positive number, regardless of debit/credit)
    - Type (debit or credit)
    - Balance after transaction (if available)
-4. The starting balance of the statement
-5. The ending balance of the statement
+5. The starting balance of the statement
+6. The ending balance of the statement
 
-Also perform a reconciliation check to verify if the transactions add up correctly to match the difference between starting and ending balance.
+IMPORTANT: For transaction amounts, always extract the absolute value (positive number) and use the "type" field to indicate if it's a debit or credit. For example:
+- A $100 withdrawal should be: {"amount": 100, "type": "debit"}
+- A $50 deposit should be: {"amount": 50, "type": "credit"}
 
 Return your analysis as a properly formatted JSON object with the following structure:
 {
@@ -83,13 +86,14 @@ Return your analysis as a properly formatted JSON object with the following stru
     "address": "Complete address"
   },
   "documentDate": "Date of the statement",
+  "currency": "Currency code (e.g., USD, EUR, GBP) or symbol (e.g., $, €, £)",
   "startingBalance": number,
   "endingBalance": number,
   "transactions": [
     {
       "date": "Transaction date",
       "description": "Transaction description",
-      "amount": number,
+      "amount": number (ALWAYS positive),
       "type": "debit" or "credit",
       "balance": number (optional)
     }
@@ -108,7 +112,7 @@ ${textContent}
     const response = await anthropic.messages.create({
       model: 'claude-sonnet-4-20250514',
       max_tokens: 4000,
-      system: "You are a financial document analysis assistant. You extract structured information from bank statements with high accuracy. Always return valid JSON without any explanatory text. Use null for missing values.",
+      system: "You are a financial document analysis assistant. You extract structured information from bank statements with high accuracy. Always return valid JSON without any explanatory text. Use null for missing values. CRITICAL: Always extract transaction amounts as positive numbers and use the type field to indicate debit/credit.",
       messages: [
         { role: 'user', content: prompt }
       ],
@@ -122,7 +126,6 @@ ${textContent}
     }
 
     const content = firstContent.text
-    // Find JSON in the response using RegExp.exec() as preferred by ESLint
     const jsonRegex = /\{[\s\S]*\}/
     const jsonMatch = jsonRegex.exec(content)
 
@@ -133,23 +136,51 @@ ${textContent}
     // Parse the JSON with proper type assertion
     const results = JSON.parse(jsonMatch[0]) as BankStatement
 
-    // Additional calculations/validations if needed
-    const transactionSum = results.transactions.reduce((sum: number, transaction) => {
+    // Ensure currency field exists, default to USD if not found
+    if (!results.currency) {
+      results.currency = 'USD'
+    }
+
+    // Normalize and validate transaction amounts
+    const normalizedTransactions = results.transactions.map((transaction) => {
+      // Ensure amounts are always positive (take absolute value)
+      const normalizedAmount = Math.abs(transaction.amount)
+
+      return {
+        ...transaction,
+        amount: normalizedAmount
+      }
+    })
+
+    // Calculate the net change from transactions
+    const netChange = normalizedTransactions.reduce((sum: number, transaction) => {
       if (transaction.type === 'credit') {
+        // Credits increase the balance
         return sum + transaction.amount
-      } else {
+      } else if (transaction.type === 'debit') {
+        // Debits decrease the balance
         return sum - transaction.amount
+      } else {
+        // Skip unknown transaction types silently
+        return sum
       }
     }, 0)
 
-    const calculatedEndingBalance = results.startingBalance + transactionSum
-    const isReconciled = Math.abs(calculatedEndingBalance - results.endingBalance) < 0.01 // Allow tiny rounding errors
+    // Calculate what the ending balance should be
+    const calculatedEndingBalance = results.startingBalance + netChange
 
-    // Update reconciliation
+    // Check if reconciled (allow for small rounding errors)
+    const discrepancy = results.endingBalance - calculatedEndingBalance
+    const isReconciled = Math.abs(discrepancy) < 0.01
+
+    // Update the transactions in results with normalized amounts
+    results.transactions = normalizedTransactions
+
+    // Update reconciliation with correct calculations
     results.reconciliation = {
       calculatedBalance: calculatedEndingBalance,
       isReconciled: isReconciled,
-      discrepancy: isReconciled ? undefined : results.endingBalance - calculatedEndingBalance
+      discrepancy: isReconciled ? undefined : discrepancy
     }
 
     return results
