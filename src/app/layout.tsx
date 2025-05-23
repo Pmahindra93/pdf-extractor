@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
-// import ClientToaster from '../components/ui/ClientToaster'
+// import { Toaster } from 'react-hot-toast'
 import '../styles/globals.css'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -19,7 +19,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         {children}
-        {/* <ClientToaster /> */}
+        {/* Toaster temporarily disabled to test hydration */}
       </body>
     </html>
   )

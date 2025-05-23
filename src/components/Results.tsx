@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { AlertCircle, CheckCircle2, RotateCcw } from "lucide-react"
-import { toast } from 'sonner'
+// Using console.log instead of toasts to avoid hydration issues
 import type { BankStatement } from '../types'
 
 interface ResultsProps {
@@ -182,9 +182,7 @@ export default function Results({ results, file, onAnalyzeAnother }: ResultsProp
           <Button
             onClick={() => {
               onAnalyzeAnother()
-              toast.success('Ready for new analysis', {
-                description: 'You can now upload another bank statement'
-              })
+              console.log('Ready for new analysis - You can now upload another bank statement')
             }}
             className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2 px-6 py-3"
           >
