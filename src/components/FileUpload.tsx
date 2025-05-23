@@ -175,6 +175,13 @@ export default function FileUpload() {
   return (
     <div className="min-h-screen bg-black text-white">
       <div className="w-full max-w-2xl mx-auto pt-12">
+        <div className="mb-8 text-center">
+          <h1 className="text-3xl font-bold mb-2 text-white">Bank Statement Analyzer</h1>
+          <p className="text-gray-300">
+            Upload a bank statement PDF to extract account details, transactions, and balance information
+          </p>
+        </div>
+
         <Card className="w-full bg-gray-900 border-gray-700 text-white">
           <CardContent>
             <form onSubmit={handleSubmit}>
