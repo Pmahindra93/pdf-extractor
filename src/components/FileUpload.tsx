@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { UploadCloud, AlertCircle, Loader2 } from "lucide-react"
@@ -13,17 +13,7 @@ export default function FileUpload() {
   const [isProcessing, setIsProcessing] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [results, setResults] = useState<BankStatement | null>(null)
-  const [isMounted, setIsMounted] = useState(false)
-
-  // Ensure component is fully mounted and ready
-  useEffect(() => {
-    // Set mounted after a brief delay to ensure DOM is ready
-    const timer = setTimeout(() => {
-      setIsMounted(true)
-    }, 50)
-
-    return () => clearTimeout(timer)
-  }, [])
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0] ?? null
@@ -177,13 +167,12 @@ export default function FileUpload() {
   }
 
   const handleFileSelect = () => {
-    if (!isMounted || isProcessing) {
+    if (isProcessing) {
       return
     }
 
-    const fileInput = document.getElementById('file-upload') as HTMLInputElement
-    if (fileInput) {
-      fileInput.click()
+    if (fileInputRef.current) {
+      fileInputRef.current.click()
     }
   }
 
@@ -196,6 +185,10 @@ export default function FileUpload() {
           setFile(null)
           setResults(null)
           setError(null)
+          // Clear file input value
+          if (fileInputRef.current) {
+            fileInputRef.current.value = ''
+          }
         }}
       />
     )
@@ -262,9 +255,9 @@ export default function FileUpload() {
                   type="file"
                   className="hidden"
                   accept="application/pdf"
-                  id="file-upload"
                   onChange={handleFileChange}
                   disabled={isProcessing}
+                  ref={fileInputRef}
                 />
               </div>
 

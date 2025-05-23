@@ -11,75 +11,52 @@ const anthropic = new Anthropic({
 
 export async function POST(request: NextRequest) {
   try {
-    // Check if this is a file upload (multipart) or JSON request (legacy)
+    // Check if this is a file upload (multipart)
     const contentType = request.headers.get('content-type') ?? ''
 
-    let fileBuffer: Buffer
-
-    if (contentType.includes('multipart/form-data')) {
-      // NEW: Direct file upload approach
-      const formData = await request.formData()
-      const file = formData.get('file') as File | null
-
-      if (!file) {
-        return NextResponse.json(
-          { error: 'No file provided' },
-          { status: 400 }
-        )
-      }
-
-      // Validate file type
-      if (file.type !== 'application/pdf') {
-        return NextResponse.json(
-          { error: 'Only PDF files are accepted' },
-          { status: 400 }
-        )
-      }
-
-      // Validate file size (max 10MB)
-      const maxSize = 10 * 1024 * 1024 // 10MB
-      if (file.size > maxSize) {
-        return NextResponse.json(
-          { error: 'File size should not exceed 10MB' },
-          { status: 400 }
-        )
-      }
-
-      // Convert file to buffer (in-memory processing)
-      const arrayBuffer = await file.arrayBuffer()
-      fileBuffer = Buffer.from(arrayBuffer)
-
-    } else {
-      // LEGACY: JSON request with fileId (keeping for backwards compatibility)
-      const body = await request.json() as { fileId?: string }
-      const { fileId } = body
-
-      if (!fileId) {
-        return NextResponse.json(
-          { error: 'No fileId provided' },
-          { status: 400 }
-        )
-      }
-
-      // This is the old disk-based approach
-      const fs = await import('fs/promises')
-      const path = await import('path')
-
-      const filePath = path.join(process.cwd(), 'uploads', `${fileId}.pdf`)
-      fileBuffer = await fs.readFile(filePath)
-
-      // Clean up the file
-      try {
-        await fs.unlink(filePath)
-      } catch (cleanupError) {
-        console.error('Error deleting file:', cleanupError)
-      }
+    if (!contentType.includes('multipart/form-data')) {
+      return NextResponse.json(
+        { error: 'Invalid content type. Expected multipart/form-data' },
+        { status: 400 }
+      )
     }
+
+    // Direct file upload approach
+    const formData = await request.formData()
+    const file = formData.get('file') as File | null
+
+    if (!file) {
+      return NextResponse.json(
+        { error: 'No file provided' },
+        { status: 400 }
+      )
+    }
+
+    // Validate file type
+    if (file.type !== 'application/pdf') {
+      return NextResponse.json(
+        { error: 'Only PDF files are accepted' },
+        { status: 400 }
+      )
+    }
+
+    // Validate file size (max 10MB)
+    const maxSize = 10 * 1024 * 1024 // 10MB
+    if (file.size > maxSize) {
+      return NextResponse.json(
+        { error: 'File size should not exceed 10MB' },
+        { status: 400 }
+      )
+    }
+
+    // Convert file to buffer (in-memory processing)
+    const arrayBuffer = await file.arrayBuffer()
+    const fileBuffer = Buffer.from(arrayBuffer)
 
     // Convert buffer to base64 for Anthropic API
     const base64PDF = fileBuffer.toString('base64')
 
-    // Process the PDF directly with AI (no pdf-parse needed!)
+    // Process the PDF directly with AI
     const results = await processWithAI(base64PDF)
 
     return NextResponse.json(results)

@@ -6,7 +6,7 @@
 
 /** @type {import("next").NextConfig} */
 const nextConfig = {
-  reactStrictMode: false, // Disable strict mode to reduce HMR conflicts
+  reactStrictMode: true, // Re-enabled since we fixed the hydration issues
   experimental: {
     serverComponentsExternalPackages: ['pdf-parse'],
   },
