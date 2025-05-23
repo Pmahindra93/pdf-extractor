@@ -6,8 +6,9 @@
 
 /** @type {import("next").NextConfig} */
 const nextConfig = {
+  reactStrictMode: false, // Disable strict mode to reduce HMR conflicts
   experimental: {
-    serverComponentsExternalPackages: ['pdf-parse']
+    serverComponentsExternalPackages: ['pdf-parse'],
   },
   webpack: (config, { isServer }) => {
     if (isServer) {

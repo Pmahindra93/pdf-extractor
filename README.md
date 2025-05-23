@@ -4,14 +4,17 @@ A Next.js application that uses AI to extract and analyze data from PDF bank sta
 
 ## ✨ Features
 
-- 📄 **PDF Upload & Processing** - Upload bank statement PDFs with validation
+- 📄 **Direct PDF Processing** - Upload bank statement PDFs with instant in-memory processing
+- 🔍 **Document Type Validation** - Automatically detects if uploaded document is a bank statement
 - 👤 **Account Information Extraction** - Automatically extracts account holder name and address
-- 📅 **Document Date Detection** - Identifies and parses statement dates
+- 📅 **Document Date Detection** - Identifies and parses statement dates in DD MMM YYYY format
 - 💰 **Transaction Analysis** - Lists all transactions with amounts, dates, and descriptions
 - 🔍 **Balance Reconciliation** - Shows starting/ending balances and performs accuracy checks
-- 🎨 **Clean UI** - Modern, responsive interface built with Tailwind CSS
-- 🔄 **Auto Cleanup** - Temporary files are automatically deleted after processing
-- 🤖 **AI-Powered** - Uses Anthropic Claude for intelligent document parsing
+- 🎨 **Modern Dark UI** - Professional dark theme with gradient headings and modern design
+- 🚀 **In-Memory Processing** - No disk storage for enhanced security and speed
+- 🤖 **AI-Powered** - Uses Anthropic Claude with native PDF document processing
+- 🔔 **Smart Notifications** - Contextual error messages and success notifications
+- 🔄 **Auto-Reset on Errors** - Easy recovery from upload mistakes without page refresh
 
 ## 🛠️ Tech Stack
 
@@ -21,9 +24,10 @@ A Next.js application that uses AI to extract and analyze data from PDF bank sta
 | **API Layer** | Next.js API Routes (REST) |
 | **UI Components** | Tailwind CSS + shadcn/ui |
 | **Notifications** | Sonner toast library |
-| **PDF Processing** | pdf-parse |
-| **AI Processing** | Anthropic Claude |
+| **PDF Processing** | Anthropic Claude native document processing |
+| **AI Processing** | Anthropic Claude Sonnet |
 | **Type Safety** | TypeScript throughout |
+| **Security** | In-memory processing, no data persistence |
 
 ## 🚀 Getting Started
 
@@ -51,8 +55,6 @@ A Next.js application that uses AI to extract and analyze data from PDF bank sta
    Create a `.env.local` file in the root directory:
    ```env
 ANTHROPIC_API_KEY=your-anthropic-api-key-here
-# OR
-OPENAI_API_KEY=your-openai-api-key-here
    ```
 
 4. **Start the development server**
@@ -67,48 +69,34 @@ OPENAI_API_KEY=your-openai-api-key-here
 ## 📖 Usage
 
 1. **Upload PDF** - Click "Select File" or drag & drop a bank statement PDF
-2. **Wait for Processing** - The AI analyzes the document (usually takes 5-10 seconds)
-3. **View Results** - See extracted account information, transactions, and reconciliation
+2. **Document Validation** - AI automatically verifies it's a bank statement
+3. **Wait for Processing** - The AI analyzes the document directly (usually takes 10-20 seconds)
+4. **View Results** - See extracted account information, transactions, and reconciliation
+5. **Try Again** - If wrong document type, click "Try Again" or wait for auto-reset
 
 ### Supported File Types
 - PDF files only
 - Maximum file size: 10MB
+- Bank statements only (other document types will be rejected)
 
 ## 🔌 API Routes
 
-### `POST /api/upload`
-Upload a PDF file for processing.
+### `POST /api/analyze`
+Directly analyze a PDF file with document type validation.
 
 **Request:**
 - `Content-Type: multipart/form-data`
-- `file`: PDF file
+- `file`: PDF file (bank statement)
 
-**Response:**
-```json
-{
-  "fileId": "uuid-string",
-  "message": "File uploaded successfully"
-}
-```
-
-### `POST /api/analyze`
-Analyze a previously uploaded PDF file.
-
-**Request:**
-```json
-{
-  "fileId": "uuid-string"
-}
-```
-
-**Response:**
+**Success Response:**
 ```json
 {
   "accountHolder": {
     "name": "John Doe",
     "address": "123 Main St, City, State"
   },
-  "documentDate": "2024-01-31",
+  "documentDate": "22 May 2025",
+  "currency": "USD",
   "startingBalance": 1000.00,
   "endingBalance": 1250.00,
   "transactions": [
@@ -128,6 +116,13 @@ Analyze a previously uploaded PDF file.
 }
 ```
 
+**Error Response (Wrong Document Type):**
+```json
+{
+  "error": "This appears to be a resume rather than a bank statement. Please upload a bank statement PDF."
+}
+```
+
 ## 📁 Project Structure
 
 ```
@@ -135,22 +130,19 @@ bank-statement-analyzer/
 ├── 📂 src/
 │   ├── 📂 app/
 │   │   ├── 📂 api/
-│   │   │   ├── 📂 analyze/
-│   │   │   │   └── 📄 route.ts         # PDF analysis endpoint
-│   │   │   └── 📂 upload/
-│   │   │       └── 📄 route.ts         # File upload endpoint
+│   │   │   └── 📂 analyze/
+│   │   │       └── 📄 route.ts         # Direct PDF analysis endpoint
 │   │   ├── 📄 page.tsx                 # Main page component
-│   │   ├── 📄 layout.tsx               # Root layout
+│   │   ├── 📄 layout.tsx               # Root layout with Toaster
 │   │   └── 📄 globals.css              # Global styles
 │   ├── 📂 components/
-│   │   ├── 📄 FileUpload.tsx           # Upload component
+│   │   ├── 📄 FileUpload.tsx           # Upload component with drag & drop
+│   │   ├── 📄 Results.tsx              # Results display component
 │   │   └── 📂 ui/                      # shadcn/ui components
 │   ├── 📂 types/
-│   │   └── 📄 index.ts                 # TypeScript interfaces
+│   │   └── 📄 index.ts                 # TypeScript interfaces & type guards
 │   └── 📂 styles/
 │       └── 📄 globals.css              # Tailwind CSS imports
-├── 📂 uploads/                         # Temporary file storage
-├── 📂 .vscode/                         # VS Code configuration
 ├── 📄 .env.local                       # Environment variables
 ├── 📄 next.config.js                   # Next.js configuration
 ├── 📄 tailwind.config.js               # Tailwind CSS config
@@ -162,28 +154,29 @@ bank-statement-analyzer/
 
 ```mermaid
 graph TD
-    A[User uploads PDF] --> B[/api/upload endpoint]
-    B --> C[File stored temporarily]
-    C --> D[Analysis requested]
-    D --> E[/api/analyze endpoint]
-    E --> F[PDF text extraction]
-    F --> G[AI processing with Claude]
-    G --> H[Structured data returned]
-    H --> I[UI displays results]
-    I --> J[Temporary files cleaned up]
+    A[User uploads PDF] --> B[/api/analyze endpoint]
+    B --> C[Document type validation]
+    C --> D{Is bank statement?}
+    D -->|No| E[Error: Wrong document type]
+    D -->|Yes| F[Anthropic Claude native PDF processing]
+    F --> G[AI extracts structured data]
+    G --> H[Balance reconciliation]
+    H --> I[Results returned to UI]
+    I --> J[Display results with PDF preview]
+    E --> K[User notified via toast]
+    K --> L[Auto-reset for retry]
 ```
 
 ### Data Flow
 
-1. **File Upload** - User selects PDF file in browser
-2. **Temporary Storage** - File uploaded to `/api/upload` and stored with unique ID
-3. **Analysis Request** - Frontend calls `/api/analyze` with file ID
-4. **Text Extraction** - PDF converted to text using `pdf-parse`
-5. **AI Processing** - Text sent to Anthropic Claude for intelligent parsing
-6. **Data Structuring** - AI returns structured JSON with account details and transactions
-7. **Reconciliation** - System validates transaction math and balance accuracy
-8. **Display** - Results shown in user-friendly format
-9. **Cleanup** - Temporary files automatically deleted
+1. **Direct File Upload** - User selects PDF file, sent directly to analysis
+2. **In-Memory Processing** - File processed entirely in server memory (no disk storage)
+3. **Document Type Validation** - AI first checks if document is a bank statement
+4. **Native PDF Processing** - Anthropic Claude processes PDF directly (no text extraction step)
+5. **AI Analysis** - Claude extracts structured data with high accuracy
+6. **Data Validation** - System validates transaction math and balance accuracy
+7. **Smart Error Handling** - Context-aware error messages with recovery options
+8. **Instant Results** - Data displayed with PDF preview and reconciliation details
 
 ## 🔧 Development
 
@@ -201,25 +194,44 @@ npm run lint         # Run ESLint
 | Variable | Description | Required |
 |----------|-------------|----------|
 | `ANTHROPIC_API_KEY` | Anthropic Claude API key | Yes |
-| `OPENAI_API_KEY` | Alternative: OpenAI API key | No |
 
 ## 🚨 Error Handling
 
-The application includes comprehensive error handling for:
+The application includes comprehensive error handling with smart notifications:
 
-- ❌ Invalid file types (non-PDF)
-- ❌ Files exceeding size limits
-- ❌ AI processing failures
-- ❌ PDF parsing errors
-- ❌ Network connectivity issues
+### Document Type Errors
+- ❌ **Non-bank statements** → "Wrong document type" with specific document identification
+- 🔄 **Auto-recovery** → "Try Again" button or 2-second auto-reset
+
+### Processing Errors
+- ❌ **Invalid file types** (non-PDF) → Immediate validation with toast notification
+- ❌ **Files exceeding size limits** → 10MB limit with clear messaging
+- ❌ **AI processing failures** → Contextual error messages
+- ❌ **Network connectivity issues** → Retry suggestions
+
+### User Experience
+- 🎯 **Toast notifications** → All errors shown as user-friendly notifications
+- ⚡ **Instant feedback** → File selection and drag & drop work immediately
+- 🔄 **Easy recovery** → No page refresh needed after errors
 
 ## 🔒 Security Features
 
-- ✅ File type validation
-- ✅ File size limits
-- ✅ Temporary file cleanup
-- ✅ API key environment protection
-- ✅ Input sanitization
+- ✅ **In-memory processing** → No sensitive data stored on disk
+- ✅ **Document type validation** → Only bank statements processed
+- ✅ **File type validation** → PDF files only
+- ✅ **File size limits** → 10MB maximum
+- ✅ **API key environment protection** → Secure credential handling
+- ✅ **Input sanitization** → All user inputs validated
+
+## 🎨 UI/UX Features
+
+- 🌙 **Modern Dark Theme** → Professional black background with white text
+- 🌈 **Gradient Headings** → AI-Powered Statement Analysis with blue-purple gradient
+- 📱 **Responsive Design** → Works on desktop and mobile
+- 🎯 **Click-to-upload** → Entire drop zone is clickable
+- 📋 **Drag & Drop** → Intuitive file upload experience
+- 🔔 **Smart Notifications** → Context-aware toast messages
+- ⚡ **Loading States** → Clear feedback during processing
 
 ## 🤝 Contributing
 
@@ -248,11 +260,24 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 **AI processing fails**
 - Check your `ANTHROPIC_API_KEY` in `.env.local`
 - Ensure API key has sufficient credits
+- Verify you're using a supported Claude model
 
-**PDF parsing errors**
+**PDF processing errors**
 - Ensure file is a valid PDF
 - Check file isn't password protected
 - Verify file size is under 10MB
+- Confirm document is actually a bank statement
+
+**File upload not working**
+- Check browser console for errors
+- Ensure JavaScript is enabled
+- Try refreshing the page
+- Verify file is a PDF under 10MB
+
+**Toast notifications not appearing**
+- Check if browser has notifications blocked
+- Verify Toaster component is in layout.tsx
+- Try refreshing the page
 
 ---
 
