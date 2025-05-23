@@ -23,7 +23,7 @@ A Next.js application that uses AI to extract and analyze data from PDF bank sta
 | **Frontend** | Next.js 14 with App Router |
 | **API Layer** | Next.js API Routes (REST) |
 | **UI Components** | Tailwind CSS + shadcn/ui |
-| **Notifications** | Sonner toast library |
+| **Notifications** | Inline status messages |
 | **PDF Processing** | Anthropic Claude native document processing |
 | **AI Processing** | Anthropic Claude Sonnet |
 | **Type Safety** | TypeScript throughout |
@@ -133,7 +133,7 @@ bank-statement-analyzer/
 │   │   │   └── 📂 analyze/
 │   │   │       └── 📄 route.ts         # Direct PDF analysis endpoint
 │   │   ├── 📄 page.tsx                 # Main page component
-│   │   ├── 📄 layout.tsx               # Root layout with Toaster
+│   │   ├── 📄 layout.tsx               # Root layout configuration
 │   │   └── 📄 globals.css              # Global styles
 │   ├── 📂 components/
 │   │   ├── 📄 FileUpload.tsx           # Upload component with drag & drop
@@ -163,7 +163,7 @@ graph TD
     G --> H[Balance reconciliation]
     H --> I[Results returned to UI]
     I --> J[Display results with PDF preview]
-    E --> K[User notified via toast]
+    E --> K[User notified via inline status]
     K --> L[Auto-reset for retry]
 ```
 
@@ -204,13 +204,13 @@ The application includes comprehensive error handling with smart notifications:
 - 🔄 **Auto-recovery** → "Try Again" button or 2-second auto-reset
 
 ### Processing Errors
-- ❌ **Invalid file types** (non-PDF) → Immediate validation with toast notification
+- ❌ **Invalid file types** (non-PDF) → Immediate validation with inline status messages
 - ❌ **Files exceeding size limits** → 10MB limit with clear messaging
 - ❌ **AI processing failures** → Contextual error messages
 - ❌ **Network connectivity issues** → Retry suggestions
 
 ### User Experience
-- 🎯 **Toast notifications** → All errors shown as user-friendly notifications
+- 🎯 **Inline status messages** → All feedback shown as integrated UI notifications
 - ⚡ **Instant feedback** → File selection and drag & drop work immediately
 - 🔄 **Easy recovery** → No page refresh needed after errors
 
@@ -230,7 +230,7 @@ The application includes comprehensive error handling with smart notifications:
 - 📱 **Responsive Design** → Works on desktop and mobile
 - 🎯 **Click-to-upload** → Entire drop zone is clickable
 - 📋 **Drag & Drop** → Intuitive file upload experience
-- 🔔 **Smart Notifications** → Context-aware toast messages
+- 🔔 **Smart Notifications** → Context-aware inline status messages
 - ⚡ **Loading States** → Clear feedback during processing
 
 ## 🤝 Contributing
@@ -274,9 +274,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Try refreshing the page
 - Verify file is a PDF under 10MB
 
-**Toast notifications not appearing**
-- Check if browser has notifications blocked
-- Verify Toaster component is in layout.tsx
+**Status messages not appearing**
+- Check browser console for JavaScript errors
+- Ensure components are properly hydrated
 - Try refreshing the page
 
 ---
