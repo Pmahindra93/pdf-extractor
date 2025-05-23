@@ -1,7 +1,8 @@
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { Anthropic } from '@anthropic-ai/sdk'
-import type { BankStatement } from '../../../types'
+import type { BankStatement, AIResponse } from '../../../types'
+import { isErrorResponse } from '../../../types'
 
 // Initialize AI client
 const anthropic = new Anthropic({
@@ -86,6 +87,16 @@ export async function POST(request: NextRequest) {
   } catch (err) {
     const error = err instanceof Error ? err : new Error('Unknown error occurred')
     console.error('Error analyzing file:', error.message)
+
+    // Check if this is a document type error (should be 400, not 500)
+    if (error.message.includes('appears to be')) {
+      return NextResponse.json(
+        { error: error.message },
+        { status: 400 }
+      )
+    }
+
+    // Generic processing error (500)
     return NextResponse.json(
       { error: 'An error occurred while analyzing the file' },
       { status: 500 }
@@ -97,9 +108,9 @@ export async function POST(request: NextRequest) {
 async function processWithAI(base64PDF: string): Promise<BankStatement> {
   try {
     const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514', // Using faster Sonnet model
+      model: 'claude-sonnet-4-20250514',
       max_tokens: 4000,
-      system: "You are a financial document analysis assistant. Extract structured information from bank statements with high accuracy. Always return valid JSON without explanatory text. Use null for missing values. CRITICAL: Always extract transaction amounts as positive numbers and use the type field to indicate debit/credit.",
+      system: "You are a financial document analysis assistant. First determine if this is a bank statement. If not, return an error. If yes, extract the data accurately.",
       messages: [
         {
           role: 'user',
@@ -114,34 +125,19 @@ async function processWithAI(base64PDF: string): Promise<BankStatement> {
             },
             {
               type: 'text',
-              text: `Analyze this bank statement PDF and extract the following information in JSON format:
+              text: `Is this a bank statement? If NO, respond with:
+{"error": "This appears to be a [document type] rather than a bank statement. Please upload a bank statement PDF."}
 
+If YES, extract this JSON:
 {
-  "accountHolder": {
-    "name": "Full Name",
-    "address": "Complete address"
-  },
-  "documentDate": "Date of the statement in format 'DD MMM YYYY' (e.g., '22 May 2025')",
-  "currency": "Currency code (e.g., USD, EUR, GBP) or symbol (e.g., $, €, £)",
+  "accountHolder": {"name": "Full Name", "address": "Complete address"},
+  "documentDate": "DD MMM YYYY format",
+  "currency": "Currency code",
   "startingBalance": number,
   "endingBalance": number,
-  "transactions": [
-    {
-      "date": "Transaction date",
-      "description": "Transaction description",
-      "amount": number (ALWAYS positive),
-      "type": "debit" or "credit",
-      "balance": number (optional)
-    }
-  ],
-  "reconciliation": {
-    "calculatedBalance": number,
-    "isReconciled": boolean,
-    "discrepancy": number (if not reconciled)
-  }
-}
-
-IMPORTANT: For transaction amounts, always extract the absolute value (positive number) and use the "type" field to indicate if it's a debit or credit.`
+  "transactions": [{"date": "date", "description": "desc", "amount": number, "type": "debit|credit", "balance": number}],
+  "reconciliation": {"calculatedBalance": number, "isReconciled": boolean, "discrepancy": number}
+}`
             }
           ]
         }
@@ -149,7 +145,6 @@ IMPORTANT: For transaction amounts, always extract the absolute value (positive 
       temperature: 0,
     })
 
-    // Extract JSON from the response
     const firstContent = response.content[0]
     if (!firstContent || firstContent.type !== 'text') {
       throw new Error('Failed to get text response from AI')
@@ -163,8 +158,14 @@ IMPORTANT: For transaction amounts, always extract the absolute value (positive 
       throw new Error('Failed to extract JSON from AI response')
     }
 
-    // Parse the JSON with proper type assertion
-    const results = JSON.parse(jsonMatch[0]) as BankStatement
+    const parsed = JSON.parse(jsonMatch[0]) as AIResponse
+
+    // Type-safe error check
+    if (isErrorResponse(parsed)) {
+      throw new Error(parsed.error)
+    }
+
+    const results = parsed
 
     // Ensure currency field exists, default to USD if not found
     if (!results.currency) {

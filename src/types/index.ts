@@ -22,3 +22,15 @@ export interface BankStatement {
     discrepancy?: number;
   };
 }
+
+// AI Response validation types
+export interface ErrorResponse {
+  error: string;
+}
+
+export type AIResponse = ErrorResponse | BankStatement;
+
+// Type guard function
+export function isErrorResponse(response: AIResponse): response is ErrorResponse {
+  return 'error' in response;
+}

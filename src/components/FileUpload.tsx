@@ -132,9 +132,55 @@ export default function FileUpload() {
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'An error occurred'
       setError(errorMessage)
-      toast.error('Analysis failed', {
-        description: errorMessage
-      })
+
+      // Better error handling for different error types
+      if (errorMessage.includes('appears to be')) {
+        // Document type error - more specific messaging
+        toast.error('Wrong document type', {
+          description: errorMessage,
+          duration: 6000,
+          action: {
+            label: "Try Again",
+            onClick: () => {
+              setFile(null)
+              setError(null)
+            }
+          }
+        })
+      } else if (errorMessage.includes('Failed to extract') || errorMessage.includes('Failed to get')) {
+        // AI processing error
+        toast.error('Document processing failed', {
+          description: 'The document could not be processed. Please try a different bank statement.',
+          duration: 5000,
+          action: {
+            label: "Try Again",
+            onClick: () => {
+              setFile(null)
+              setError(null)
+            }
+          }
+        })
+      } else {
+        // Generic error
+        toast.error('Analysis failed', {
+          description: errorMessage,
+          duration: 4000,
+          action: {
+            label: "Try Again",
+            onClick: () => {
+              setFile(null)
+              setError(null)
+            }
+          }
+        })
+      }
+
+      // Auto-reset after a delay to allow user to try again
+      setTimeout(() => {
+        setFile(null)
+        setError(null)
+      }, 2000)
+
     } finally {
       setIsProcessing(false)
     }
