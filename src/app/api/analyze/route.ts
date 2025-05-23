@@ -1,55 +1,102 @@
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
-import { readFile, unlink } from 'fs/promises'
-import { join } from 'path'
 import { Anthropic } from '@anthropic-ai/sdk'
 import pdfParse from 'pdf-parse'
 import type { BankStatement } from '../../../types'
 
 // Initialize AI client
 const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY ?? '', // Set this in your .env.local file
+  apiKey: process.env.ANTHROPIC_API_KEY ?? '',
 })
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json() as { fileId?: string }
-    const { fileId } = body
+    // Check if this is a file upload (multipart) or JSON request (legacy)
+    const contentType = request.headers.get('content-type') ?? ''
 
-    if (!fileId) {
+    let fileBuffer: Buffer
+
+    if (contentType.includes('multipart/form-data')) {
+      // NEW: Direct file upload approach
+      const formData = await request.formData()
+      const file = formData.get('file') as File | null
+
+      if (!file) {
+        return NextResponse.json(
+          { error: 'No file provided' },
+          { status: 400 }
+        )
+      }
+
+      // Validate file type
+      if (file.type !== 'application/pdf') {
+        return NextResponse.json(
+          { error: 'Only PDF files are accepted' },
+          { status: 400 }
+        )
+      }
+
+      // Validate file size (max 10MB)
+      const maxSize = 10 * 1024 * 1024 // 10MB
+      if (file.size > maxSize) {
+        return NextResponse.json(
+          { error: 'File size should not exceed 10MB' },
+          { status: 400 }
+        )
+      }
+
+      // Convert file to buffer (in-memory processing)
+      const arrayBuffer = await file.arrayBuffer()
+      fileBuffer = Buffer.from(arrayBuffer)
+
+    } else {
+      // LEGACY: JSON request with fileId (keeping for backwards compatibility)
+      const body = await request.json() as { fileId?: string }
+      const { fileId } = body
+
+      if (!fileId) {
+        return NextResponse.json(
+          { error: 'No fileId provided' },
+          { status: 400 }
+        )
+      }
+
+      // This is the old disk-based approach
+      const fs = await import('fs/promises')
+      const path = await import('path')
+
+      const filePath = path.join(process.cwd(), 'uploads', `${fileId}.pdf`)
+      fileBuffer = await fs.readFile(filePath)
+
+      // Clean up the file
+      try {
+        await fs.unlink(filePath)
+      } catch (cleanupError) {
+        console.error('Error deleting file:', cleanupError)
+      }
+    }
+
+    // Parse PDF from buffer (works for both approaches)
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+    const pdfData = await pdfParse(fileBuffer) as { text: string }
+    const textContent = pdfData.text
+
+    // Validate extracted content
+    if (!textContent || textContent.trim().length === 0) {
       return NextResponse.json(
-        { error: 'No fileId provided' },
+        { error: 'No text content could be extracted from PDF' },
         { status: 400 }
       )
     }
 
-    // Construct file path
-    const filePath = join(process.cwd(), 'uploads', `${fileId}.pdf`)
-
-    // Read the file
-    const fileBuffer = await readFile(filePath)
-
-    // Parse the PDF - suppress ESLint warning for external library typing issue
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-    const pdfData = await pdfParse(fileBuffer) as { text: string }
-
-    // Extract the text
-    const textContent = pdfData.text
-
     // Process the text using AI
     const results = await processWithAI(textContent)
 
-    // Clean up - delete the file after processing
-    try {
-      await unlink(filePath)
-    } catch (cleanupError) {
-      console.error('Error deleting file:', cleanupError)
-      // Continue even if cleanup fails
-    }
-
     return NextResponse.json(results)
-  } catch (error) {
-    console.error('Error analyzing file:', error)
+
+  } catch (err) {
+    const error = err instanceof Error ? err : new Error('Unknown error occurred')
+    console.error('Error analyzing file:', error.message)
     return NextResponse.json(
       { error: 'An error occurred while analyzing the file' },
       { status: 500 }
@@ -184,8 +231,9 @@ ${textContent}
     }
 
     return results
-  } catch (error) {
+  } catch (err) {
+    const error = err instanceof Error ? err.message : 'Unknown error in AI processing'
     console.error('Error in AI processing:', error)
-    throw error
+    throw new Error(error)
   }
 }

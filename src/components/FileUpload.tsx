@@ -12,14 +12,8 @@ interface ApiError {
   error: string;
 }
 
-interface UploadResponse {
-  fileId: string;
-  message: string;
-}
-
 export default function FileUpload() {
   const [file, setFile] = useState<File | null>(null)
-  const [isUploading, setIsUploading] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [results, setResults] = useState<BankStatement | null>(null)
@@ -86,50 +80,21 @@ export default function FileUpload() {
       return
     }
 
-    const uploadToastId = toast.loading('Uploading file...', {
-      description: 'Please wait while we upload your document'
-    })
-
     try {
-      setIsUploading(true)
+      setIsProcessing(true)
       setError(null)
 
-      // Upload file using FormData
+      toast.success('Starting analysis...', {
+        description: 'Processing your bank statement directly in memory'
+      })
+
+      // Send file directly to analyze endpoint (no separate upload step)
       const formData = new FormData()
       formData.append('file', file)
 
-      const uploadResponse = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-      })
-
-      if (!uploadResponse.ok) {
-        const errorData = await uploadResponse.json() as ApiError
-        throw new Error(errorData.error ?? 'Error uploading file')
-      }
-
-      const uploadResult = await uploadResponse.json() as UploadResponse
-      const { fileId } = uploadResult
-
-      toast.success('File uploaded successfully', {
-        id: uploadToastId,
-        description: 'Now analyzing your bank statement...'
-      })
-
-      setIsUploading(false)
-      setIsProcessing(true)
-
-      const analysisToastId = toast.loading('Analyzing document...', {
-        description: 'This may take up to 30 seconds'
-      })
-
-      // Analyze the uploaded file
       const analysisResponse = await fetch('/api/analyze', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ fileId }),
+        body: formData, // Send file directly
       })
 
       if (!analysisResponse.ok) {
@@ -138,22 +103,20 @@ export default function FileUpload() {
       }
 
       const analysisResults = await analysisResponse.json() as BankStatement
-      setResults(analysisResults)
 
       toast.success('Analysis complete!', {
-        id: analysisToastId,
         description: `Found ${analysisResults.transactions.length} transactions`
       })
+
+      setResults(analysisResults)
 
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'An error occurred'
       setError(errorMessage)
       toast.error('Analysis failed', {
-        id: uploadToastId,
         description: errorMessage
       })
     } finally {
-      setIsUploading(false)
       setIsProcessing(false)
     }
   }
@@ -187,19 +150,14 @@ export default function FileUpload() {
             <form onSubmit={handleSubmit}>
               <div
                 className={`border-2 border-dashed rounded-lg p-12 text-center transition-colors ${
-                  isUploading || isProcessing
+                  isProcessing
                     ? 'bg-gray-800 border-gray-600'
                     : 'hover:bg-gray-800 border-gray-600 hover:border-gray-500'
                 }`}
                 onDragOver={handleDragOver}
                 onDrop={handleDrop}
               >
-                {isUploading ? (
-                  <div className="space-y-3">
-                      <Loader2 className="h-10 w-10 animate-spin text-blue-400 mx-auto" />
-                      <p className="text-gray-300">Uploading file...</p>
-                  </div>
-                ) : isProcessing ? (
+                {isProcessing ? (
                   <div className="space-y-3">
                       <Loader2 className="h-10 w-10 animate-spin text-blue-400 mx-auto" />
                       <p className="text-gray-300">Analyzing document...</p>
@@ -232,7 +190,7 @@ export default function FileUpload() {
                   accept="application/pdf"
                   id="file-upload"
                   onChange={handleFileChange}
-                  disabled={isUploading || isProcessing}
+                  disabled={isProcessing}
                 />
               </div>
 
@@ -241,7 +199,7 @@ export default function FileUpload() {
                   <Button
                     type="button"
                     onClick={() => document.getElementById('file-upload')?.click()}
-                    disabled={isUploading || isProcessing}
+                    disabled={isProcessing}
                       className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2"
                   >
                     Select File
@@ -249,10 +207,10 @@ export default function FileUpload() {
                 ) : (
                   <Button
                     type="submit"
-                    disabled={isUploading || isProcessing}
+                    disabled={isProcessing}
                       className="bg-green-600 hover:bg-green-700 text-white px-6 py-2"
                   >
-                    {isUploading ? 'Uploading...' : isProcessing ? 'Processing...' : 'Analyze Statement'}
+                    {isProcessing ? 'Processing...' : 'Analyze Statement'}
                   </Button>
                 )}
               </div>
