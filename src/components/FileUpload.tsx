@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { UploadCloud, AlertCircle, Loader2 } from "lucide-react"
-import { toast } from 'sonner'
+// import { toast } from 'sonner'
 import type { BankStatement, ErrorResponse } from '../types'
 import Results from './Results'
 
@@ -23,13 +23,13 @@ export default function FileUpload() {
 
     if (selectedFile && selectedFile.type !== 'application/pdf') {
       setError('Please upload a PDF file')
-      toast.error('Invalid file type', {
-        description: 'Please select a PDF file'
-      })
+      // toast.error('Invalid file type', {
+      //   description: 'Please select a PDF file'
+      // })
     } else if (selectedFile) {
-      toast.success('File selected', {
-        description: `${selectedFile.name} ready for analysis`
-      })
+      // toast.success('File selected', {
+      //   description: `${selectedFile.name} ready for analysis`
+      // })
     }
   }
 
@@ -49,14 +49,14 @@ export default function FileUpload() {
       setFile(droppedFile)
       setError(null)
       setResults(null)
-      toast.success('File dropped', {
-        description: `${droppedFile.name} ready for analysis`
-      })
+      // toast.success('File dropped', {
+      //   description: `${droppedFile.name} ready for analysis`
+      // })
     } else {
       setError('Please upload a PDF file')
-      toast.error('Invalid file type', {
-        description: 'Please drop a PDF file'
-      })
+      // toast.error('Invalid file type', {
+      //   description: 'Please drop a PDF file'
+      // })
     }
   }
 
@@ -65,17 +65,17 @@ export default function FileUpload() {
 
     if (!file) {
       setError('Please select a file')
-      toast.error('No file selected', {
-        description: 'Please select a PDF file to analyze'
-      })
+      // toast.error('No file selected', {
+      //   description: 'Please select a PDF file to analyze'
+      // })
       return
     }
 
     if (file.type !== 'application/pdf') {
       setError('Please upload a PDF file')
-      toast.error('Invalid file type', {
-        description: 'Only PDF files are supported'
-      })
+      // toast.error('Invalid file type', {
+      //   description: 'Only PDF files are supported'
+      // })
       return
     }
 
@@ -83,9 +83,9 @@ export default function FileUpload() {
       setIsProcessing(true)
       setError(null)
 
-      toast.success('Starting analysis...', {
-        description: 'Processing your bank statement directly in memory'
-      })
+      // toast.success('Starting analysis...', {
+      //   description: 'Processing your bank statement directly in memory'
+      // })
 
       // Send file directly to analyze endpoint (no separate upload step)
       const formData = new FormData()
@@ -103,9 +103,9 @@ export default function FileUpload() {
 
       const analysisResults = await analysisResponse.json() as BankStatement
 
-      toast.success('Analysis complete!', {
-        description: `Found ${analysisResults.transactions.length} transactions`
-      })
+      // toast.success('Analysis complete!', {
+      //   description: `Found ${analysisResults.transactions.length} transactions`
+      // })
 
       setResults(analysisResults)
 
@@ -116,43 +116,43 @@ export default function FileUpload() {
       // Better error handling for different error types
       if (errorMessage.includes('appears to be')) {
         // Document type error - more specific messaging
-        toast.error('Wrong document type', {
-          description: errorMessage,
-          duration: 6000,
-          action: {
-            label: "Try Again",
-            onClick: () => {
-              setFile(null)
-              setError(null)
-            }
-          }
-        })
+        // toast.error('Wrong document type', {
+        //   description: errorMessage,
+        //   duration: 6000,
+        //   action: {
+        //     label: "Try Again",
+        //     onClick: () => {
+        //       setFile(null)
+        //       setError(null)
+        //     }
+        //   }
+        // })
       } else if (errorMessage.includes('Failed to extract') || errorMessage.includes('Failed to get')) {
         // AI processing error
-        toast.error('Document processing failed', {
-          description: 'The document could not be processed. Please try a different bank statement.',
-          duration: 5000,
-          action: {
-            label: "Try Again",
-            onClick: () => {
-              setFile(null)
-              setError(null)
-            }
-          }
-        })
+        // toast.error('Document processing failed', {
+        //   description: 'The document could not be processed. Please try a different bank statement.',
+        //   duration: 5000,
+        //   action: {
+        //     label: "Try Again",
+        //     onClick: () => {
+        //       setFile(null)
+        //       setError(null)
+        //     }
+        //   }
+        // })
       } else {
         // Generic error
-        toast.error('Analysis failed', {
-          description: errorMessage,
-          duration: 4000,
-          action: {
-            label: "Try Again",
-            onClick: () => {
-              setFile(null)
-              setError(null)
-            }
-          }
-        })
+        // toast.error('Analysis failed', {
+        //   description: errorMessage,
+        //   duration: 4000,
+        //   action: {
+        //     label: "Try Again",
+        //     onClick: () => {
+        //       setFile(null)
+        //       setError(null)
+        //     }
+        //   }
+        // })
       }
 
       // Auto-reset after a delay to allow user to try again
