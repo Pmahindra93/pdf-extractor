@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { UploadCloud, AlertCircle, Loader2 } from "lucide-react"
@@ -17,6 +17,17 @@ export default function FileUpload() {
   const [isProcessing, setIsProcessing] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [results, setResults] = useState<BankStatement | null>(null)
+  const [isMounted, setIsMounted] = useState(false)
+
+  // Ensure component is fully mounted and ready
+  useEffect(() => {
+    // Set mounted after a brief delay to ensure DOM is ready
+    const timer = setTimeout(() => {
+      setIsMounted(true)
+    }, 50)
+
+    return () => clearTimeout(timer)
+  }, [])
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0] ?? null
@@ -48,17 +59,18 @@ export default function FileUpload() {
     if (isProcessing) return
 
     const droppedFile = e.dataTransfer.files?.[0]
-    const fileInput = document.getElementById('file-upload') as HTMLInputElement
-
-    if (droppedFile && fileInput) {
-      // Create a new FileList-like object and assign it to the input
-      const dataTransfer = new DataTransfer()
-      dataTransfer.items.add(droppedFile)
-      fileInput.files = dataTransfer.files
-
-      // Trigger the change event manually
-      const event = new Event('change', { bubbles: true })
-      fileInput.dispatchEvent(event)
+    if (droppedFile?.type === 'application/pdf') {
+      setFile(droppedFile)
+      setError(null)
+      setResults(null)
+      toast.success('File dropped', {
+        description: `${droppedFile.name} ready for analysis`
+      })
+    } else {
+      setError('Please upload a PDF file')
+      toast.error('Invalid file type', {
+        description: 'Please drop a PDF file'
+      })
     }
   }
 
@@ -89,12 +101,13 @@ export default function FileUpload() {
         description: 'Processing your bank statement directly in memory'
       })
 
+      // Send file directly to analyze endpoint (no separate upload step)
       const formData = new FormData()
       formData.append('file', file)
 
       const analysisResponse = await fetch('/api/analyze', {
         method: 'POST',
-        body: formData,
+        body: formData, // Send file directly
       })
 
       if (!analysisResponse.ok) {
@@ -114,7 +127,9 @@ export default function FileUpload() {
       const errorMessage = err instanceof Error ? err.message : 'An error occurred'
       setError(errorMessage)
 
+      // Better error handling for different error types
       if (errorMessage.includes('appears to be')) {
+        // Document type error - more specific messaging
         toast.error('Wrong document type', {
           description: errorMessage,
           duration: 6000,
@@ -127,6 +142,7 @@ export default function FileUpload() {
           }
         })
       } else if (errorMessage.includes('Failed to extract') || errorMessage.includes('Failed to get')) {
+        // AI processing error
         toast.error('Document processing failed', {
           description: 'The document could not be processed. Please try a different bank statement.',
           duration: 5000,
@@ -139,6 +155,7 @@ export default function FileUpload() {
           }
         })
       } else {
+        // Generic error
         toast.error('Analysis failed', {
           description: errorMessage,
           duration: 4000,
@@ -152,6 +169,7 @@ export default function FileUpload() {
         })
       }
 
+      // Auto-reset after a delay to allow user to try again
       setTimeout(() => {
         setFile(null)
         setError(null)
@@ -159,6 +177,17 @@ export default function FileUpload() {
 
     } finally {
       setIsProcessing(false)
+    }
+  }
+
+  const handleFileSelect = () => {
+    if (!isMounted || isProcessing) {
+      return
+    }
+
+    const fileInput = document.getElementById('file-upload') as HTMLInputElement
+    if (fileInput) {
+      fileInput.click()
     }
   }
 
@@ -196,41 +225,30 @@ export default function FileUpload() {
         <Card className="w-full bg-gray-900 border-gray-700 text-white">
           <CardContent>
             <form onSubmit={handleSubmit}>
-              {/* Hidden file input */}
-              <input
-                id="file-upload"
-                type="file"
-                className="sr-only"
-                accept="application/pdf"
-                onChange={handleFileChange}
-                disabled={isProcessing}
-              />
-
-              {/* Drop zone */}
-              <label
-                htmlFor="file-upload"
-                className={`block border-2 border-dashed rounded-lg p-12 text-center transition-colors cursor-pointer ${
+              <div
+                className={`border-2 border-dashed rounded-lg p-12 text-center transition-colors cursor-pointer ${
                   isProcessing
-                    ? 'bg-gray-800 border-gray-600 cursor-not-allowed'
+                    ? 'bg-gray-800 border-gray-600'
                     : 'hover:bg-gray-800 border-gray-600 hover:border-gray-500'
                 }`}
                 onDragOver={handleDragOver}
                 onDrop={handleDrop}
+                onClick={handleFileSelect}
               >
                 {isProcessing ? (
                   <div className="space-y-3">
-                    <Loader2 className="h-10 w-10 animate-spin text-blue-400 mx-auto" />
-                    <p className="text-gray-300">Analyzing document...</p>
+                      <Loader2 className="h-10 w-10 animate-spin text-blue-400 mx-auto" />
+                      <p className="text-gray-300">Analyzing document...</p>
                     <p className="text-xs text-gray-400">This may take up to 30 seconds</p>
                   </div>
                 ) : (
                   <>
                     <UploadCloud className="h-12 w-12 text-gray-400 mx-auto mb-3" />
-                    <p className="text-gray-200 mb-2">
+                      <p className="text-gray-200 mb-2">
                       {file ? file.name : 'Drag and drop your PDF here, or click to browse'}
                     </p>
                     {!file && (
-                      <p className="text-sm text-gray-400">
+                        <p className="text-sm text-gray-400">
                         PDF files only, max 10MB
                       </p>
                     )}
@@ -238,22 +256,31 @@ export default function FileUpload() {
                 )}
 
                 {error && (
-                  <div className="mt-3 text-red-400 flex items-center justify-center gap-1.5">
+                    <div className="mt-3 text-red-400 flex items-center justify-center gap-1.5">
                     <AlertCircle size={16} />
                     <span>{error}</span>
                   </div>
                 )}
-              </label>
+
+                <input
+                  type="file"
+                  className="hidden"
+                  accept="application/pdf"
+                  id="file-upload"
+                  onChange={handleFileChange}
+                  disabled={isProcessing}
+                />
+              </div>
 
               <div className="mt-4 flex justify-center">
                 {!file ? (
                   <Button
                     type="button"
                     className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 disabled:opacity-50"
+                    onClick={handleFileSelect}
                     disabled={isProcessing}
-                    onClick={() => document.getElementById('file-upload')?.click()}
                   >
-                    Select File
+                    {!isProcessing ? 'Select File' : 'Processing...'}
                   </Button>
                 ) : (
                   <Button
