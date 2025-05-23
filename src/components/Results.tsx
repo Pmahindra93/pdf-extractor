@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { AlertCircle, CheckCircle2, RotateCcw } from "lucide-react"
-import { toast } from 'sonner'
+// Using console.log instead of toasts to avoid hydration issues
 import type { BankStatement } from '../types'
 
 interface ResultsProps {
@@ -29,6 +29,22 @@ export default function Results({ results, file, onAnalyzeAnother }: ResultsProp
 
   return (
     <div className="min-h-screen bg-black text-white p-6">
+      {/* Transaction Count Status - Top Right Corner */}
+      <div className="fixed top-4 right-4 z-50 max-w-sm">
+        <div className="p-4 bg-gray-900/95 border border-gray-700 rounded-lg shadow-lg">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+              <span className="text-green-400 font-medium text-sm">Analysis Complete</span>
+            </div>
+            <div className="text-right ml-4">
+              <p className="text-xs text-gray-400">Transactions</p>
+              <p className="text-lg font-bold text-white">{results.transactions.length}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div className="w-full max-w-7xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* PDF Display */}
@@ -182,9 +198,7 @@ export default function Results({ results, file, onAnalyzeAnother }: ResultsProp
           <Button
             onClick={() => {
               onAnalyzeAnother()
-              toast.success('Ready for new analysis', {
-                description: 'You can now upload another bank statement'
-              })
+              console.log('Ready for new analysis - You can now upload another bank statement')
             }}
             className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2 px-6 py-3"
           >

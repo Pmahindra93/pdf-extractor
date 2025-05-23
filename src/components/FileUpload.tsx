@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { UploadCloud, AlertCircle, Loader2 } from "lucide-react"
-// import { toast } from 'sonner'
+// Using inline status messages instead of toasts to avoid hydration issues
 import type { BankStatement, ErrorResponse } from '../types'
 import Results from './Results'
 
@@ -13,7 +13,21 @@ export default function FileUpload() {
   const [isProcessing, setIsProcessing] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [results, setResults] = useState<BankStatement | null>(null)
+  const [statusMessage, setStatusMessage] = useState<{
+    type: 'success' | 'error' | 'info' | null
+    message: string
+  }>({ type: null, message: '' })
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // Helper functions for status messages
+  const showStatus = (type: 'success' | 'error' | 'info', message: string, duration = 4000) => {
+    setStatusMessage({ type, message })
+    if (duration > 0) {
+      setTimeout(() => setStatusMessage({ type: null, message: '' }), duration)
+    }
+  }
+
+  const clearStatus = () => setStatusMessage({ type: null, message: '' })
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0] ?? null
@@ -23,13 +37,9 @@ export default function FileUpload() {
 
     if (selectedFile && selectedFile.type !== 'application/pdf') {
       setError('Please upload a PDF file')
-      // toast.error('Invalid file type', {
-      //   description: 'Please select a PDF file'
-      // })
+      showStatus('error', 'Invalid file type. Please select a PDF file.')
     } else if (selectedFile) {
-      // toast.success('File selected', {
-      //   description: `${selectedFile.name} ready for analysis`
-      // })
+      showStatus('success', `File selected: ${selectedFile.name} ready for analysis`)
     }
   }
 
@@ -49,14 +59,10 @@ export default function FileUpload() {
       setFile(droppedFile)
       setError(null)
       setResults(null)
-      // toast.success('File dropped', {
-      //   description: `${droppedFile.name} ready for analysis`
-      // })
+      showStatus('success', `File dropped: ${droppedFile.name} ready for analysis`)
     } else {
       setError('Please upload a PDF file')
-      // toast.error('Invalid file type', {
-      //   description: 'Please drop a PDF file'
-      // })
+      showStatus('error', 'Invalid file type. Please drop a PDF file.')
     }
   }
 
@@ -65,17 +71,13 @@ export default function FileUpload() {
 
     if (!file) {
       setError('Please select a file')
-      // toast.error('No file selected', {
-      //   description: 'Please select a PDF file to analyze'
-      // })
+      showStatus('error', 'No file selected. Please select a PDF file to analyze.')
       return
     }
 
     if (file.type !== 'application/pdf') {
       setError('Please upload a PDF file')
-      // toast.error('Invalid file type', {
-      //   description: 'Only PDF files are supported'
-      // })
+      showStatus('error', 'Invalid file type. Only PDF files are supported.')
       return
     }
 
@@ -83,9 +85,7 @@ export default function FileUpload() {
       setIsProcessing(true)
       setError(null)
 
-      // toast.success('Starting analysis...', {
-      //   description: 'Processing your bank statement directly in memory'
-      // })
+      showStatus('info', 'Starting analysis... Processing your bank statement directly in memory', 0)
 
       // Send file directly to analyze endpoint (no separate upload step)
       const formData = new FormData()
@@ -103,9 +103,7 @@ export default function FileUpload() {
 
       const analysisResults = await analysisResponse.json() as BankStatement
 
-      // toast.success('Analysis complete!', {
-      //   description: `Found ${analysisResults.transactions.length} transactions`
-      // })
+      showStatus('success', `Analysis complete! Found ${analysisResults.transactions.length} transactions`)
 
       setResults(analysisResults)
 
@@ -116,43 +114,13 @@ export default function FileUpload() {
       // Better error handling for different error types
       if (errorMessage.includes('appears to be')) {
         // Document type error - more specific messaging
-        // toast.error('Wrong document type', {
-        //   description: errorMessage,
-        //   duration: 6000,
-        //   action: {
-        //     label: "Try Again",
-        //     onClick: () => {
-        //       setFile(null)
-        //       setError(null)
-        //     }
-        //   }
-        // })
+        showStatus('error', `Wrong document type: ${errorMessage}`, 6000)
       } else if (errorMessage.includes('Failed to extract') || errorMessage.includes('Failed to get')) {
         // AI processing error
-        // toast.error('Document processing failed', {
-        //   description: 'The document could not be processed. Please try a different bank statement.',
-        //   duration: 5000,
-        //   action: {
-        //     label: "Try Again",
-        //     onClick: () => {
-        //       setFile(null)
-        //       setError(null)
-        //     }
-        //   }
-        // })
+        showStatus('error', 'Document processing failed. The document could not be processed. Please try a different bank statement.', 5000)
       } else {
         // Generic error
-        // toast.error('Analysis failed', {
-        //   description: errorMessage,
-        //   duration: 4000,
-        //   action: {
-        //     label: "Try Again",
-        //     onClick: () => {
-        //       setFile(null)
-        //       setError(null)
-        //     }
-        //   }
-        // })
+        showStatus('error', `Analysis failed: ${errorMessage}`, 4000)
       }
 
       // Auto-reset after a delay to allow user to try again
@@ -196,8 +164,23 @@ export default function FileUpload() {
 
   return (
     <div className="min-h-screen bg-black text-white">
-      <div className="w-full max-w-2xl mx-auto pt-12">
-        <div className="mb-8 text-center">
+                  {/* Fixed Status Messages - Top Right Corner */}
+      {statusMessage.type && (
+        <div className="fixed top-4 right-4 z-50 max-w-sm">
+          <div className={`p-4 rounded-lg border shadow-lg ${
+            statusMessage.type === 'success'
+              ? 'bg-green-900/90 border-green-600 text-green-300'
+              : statusMessage.type === 'error'
+              ? 'bg-red-900/90 border-red-600 text-red-300'
+              : 'bg-blue-900/90 border-blue-600 text-blue-300'
+          }`}>
+            <p className="text-sm font-medium">{statusMessage.message}</p>
+          </div>
+        </div>
+      )}
+
+              <div className="w-full max-w-2xl mx-auto pt-12">
+          <div className="mb-8 text-center">
           <h1 className="text-4xl md:text-5xl font-extrabold mb-4 bg-gradient-to-r from-blue-400 via-purple-400 to-blue-600 bg-clip-text text-transparent">
             AI-Powered Statement Analysis
           </h1>
@@ -210,6 +193,8 @@ export default function FileUpload() {
             <span>Secure • In-Memory Processing • No Data Storage</span>
           </div>
         </div>
+
+
 
         <Card className="w-full bg-gray-900 border-gray-700 text-white">
           <CardContent>
