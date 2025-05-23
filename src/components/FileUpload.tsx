@@ -5,12 +5,8 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { UploadCloud, AlertCircle, Loader2 } from "lucide-react"
 import { toast } from 'sonner'
-import type { BankStatement } from '../types'
+import type { BankStatement, ErrorResponse } from '../types'
 import Results from './Results'
-
-interface ApiError {
-  error: string;
-}
 
 export default function FileUpload() {
   const [file, setFile] = useState<File | null>(null)
@@ -111,7 +107,7 @@ export default function FileUpload() {
       })
 
       if (!analysisResponse.ok) {
-        const errorData = await analysisResponse.json() as ApiError
+        const errorData = await analysisResponse.json() as ErrorResponse
         throw new Error(errorData.error ?? 'Error analyzing file')
       }
 
