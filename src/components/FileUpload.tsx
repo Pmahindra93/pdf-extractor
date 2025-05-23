@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { UploadCloud, AlertCircle, Loader2 } from "lucide-react"
@@ -17,8 +17,21 @@ export default function FileUpload() {
   const [isProcessing, setIsProcessing] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [results, setResults] = useState<BankStatement | null>(null)
+  const [isReady, setIsReady] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const dropZoneRef = useRef<HTMLDivElement>(null)
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // More robust component readiness detection
+  useEffect(() => {
+    // Small delay to ensure DOM is fully ready
+    const timer = setTimeout(() => {
+      setIsReady(true)
+    }, 100)
+
+    return () => clearTimeout(timer)
+  }, [])
+
+  const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0] ?? null
     setFile(selectedFile)
     setError(null)
@@ -34,14 +47,14 @@ export default function FileUpload() {
         description: `${selectedFile.name} ready for analysis`
       })
     }
-  }
+  }, [])
 
-  const handleDragOver = (e: React.DragEvent) => {
+  const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault()
     e.stopPropagation()
-  }
+  }, [])
 
-  const handleDrop = (e: React.DragEvent) => {
+  const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault()
     e.stopPropagation()
 
@@ -59,7 +72,13 @@ export default function FileUpload() {
         description: 'Please drop a PDF file'
       })
     }
-  }
+  }, [])
+
+  const triggerFileSelect = useCallback(() => {
+    if (fileInputRef.current && isReady) {
+      fileInputRef.current.click()
+    }
+  }, [isReady])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -139,23 +158,32 @@ export default function FileUpload() {
     <div className="min-h-screen bg-black text-white">
       <div className="w-full max-w-2xl mx-auto pt-12">
         <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold mb-2 text-white">Bank Statement Analyzer</h1>
-          <p className="text-gray-300">
-            Upload a bank statement PDF to extract account details, transactions, and balance information
+          <h1 className="text-4xl md:text-5xl font-extrabold mb-4 bg-gradient-to-r from-blue-400 via-purple-400 to-blue-600 bg-clip-text text-transparent">
+            AI-Powered Statement Analysis
+          </h1>
+          <p className="text-lg text-gray-300 max-w-2xl mx-auto leading-relaxed">
+            Transform your bank statements into structured data in seconds.
+            <span className="text-blue-400 font-semibold"> Smart extraction</span> of transactions, balances, and account details with enterprise-grade accuracy.
           </p>
+          <div className="mt-3 flex items-center justify-center gap-2 text-sm text-gray-400">
+            <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+            <span>Secure • In-Memory Processing • No Data Storage</span>
+          </div>
         </div>
 
         <Card className="w-full bg-gray-900 border-gray-700 text-white">
           <CardContent>
             <form onSubmit={handleSubmit}>
               <div
+                ref={dropZoneRef}
                 className={`border-2 border-dashed rounded-lg p-12 text-center transition-colors ${
                   isProcessing
                     ? 'bg-gray-800 border-gray-600'
                     : 'hover:bg-gray-800 border-gray-600 hover:border-gray-500'
-                }`}
+                } ${!isReady ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                 onDragOver={handleDragOver}
                 onDrop={handleDrop}
+                onClick={triggerFileSelect}
               >
                 {isProcessing ? (
                   <div className="space-y-3">
@@ -190,7 +218,8 @@ export default function FileUpload() {
                   accept="application/pdf"
                   id="file-upload"
                   onChange={handleFileChange}
-                  disabled={isProcessing}
+                  disabled={isProcessing || !isReady}
+                  ref={fileInputRef}
                 />
               </div>
 
@@ -198,17 +227,17 @@ export default function FileUpload() {
                 {!file ? (
                   <Button
                     type="button"
-                    onClick={() => document.getElementById('file-upload')?.click()}
-                    disabled={isProcessing}
-                      className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2"
+                    onClick={triggerFileSelect}
+                    disabled={isProcessing || !isReady}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 disabled:opacity-50"
                   >
-                    Select File
+                    {!isReady ? 'Loading...' : 'Select File'}
                   </Button>
                 ) : (
                   <Button
                     type="submit"
-                    disabled={isProcessing}
-                      className="bg-green-600 hover:bg-green-700 text-white px-6 py-2"
+                    disabled={isProcessing || !isReady}
+                    className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 disabled:opacity-50"
                   >
                     {isProcessing ? 'Processing...' : 'Analyze Statement'}
                   </Button>
