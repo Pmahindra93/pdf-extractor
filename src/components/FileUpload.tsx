@@ -164,8 +164,40 @@ export default function FileUpload() {
 
   return (
     <div className="min-h-screen bg-black text-white">
-      <div className="w-full max-w-2xl mx-auto pt-12">
-        <div className="mb-8 text-center">
+            {/* Fixed Status Messages & Transaction Count - Top Right Corner */}
+      <div className="fixed top-4 right-4 z-50 max-w-sm space-y-3">
+        {/* Transaction Count Display */}
+        {results && (
+          <div className="p-4 bg-gray-900/95 border border-gray-700 rounded-lg shadow-lg">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                <span className="text-green-400 font-medium text-sm">Analysis Complete</span>
+              </div>
+              <div className="text-right ml-4">
+                <p className="text-xs text-gray-400">Transactions</p>
+                <p className="text-lg font-bold text-white">{results.transactions.length}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Status Messages */}
+        {statusMessage.type && (
+          <div className={`p-4 rounded-lg border shadow-lg ${
+            statusMessage.type === 'success'
+              ? 'bg-green-900/90 border-green-600 text-green-300'
+              : statusMessage.type === 'error'
+              ? 'bg-red-900/90 border-red-600 text-red-300'
+              : 'bg-blue-900/90 border-blue-600 text-blue-300'
+          }`}>
+            <p className="text-sm font-medium">{statusMessage.message}</p>
+          </div>
+        )}
+      </div>
+
+              <div className="w-full max-w-2xl mx-auto pt-12">
+          <div className="mb-8 text-center">
           <h1 className="text-4xl md:text-5xl font-extrabold mb-4 bg-gradient-to-r from-blue-400 via-purple-400 to-blue-600 bg-clip-text text-transparent">
             AI-Powered Statement Analysis
           </h1>
@@ -179,18 +211,7 @@ export default function FileUpload() {
           </div>
         </div>
 
-        {/* Status Message Display */}
-        {statusMessage.type && (
-          <div className={`mb-4 p-4 rounded-lg border ${
-            statusMessage.type === 'success'
-              ? 'bg-green-900/30 border-green-600 text-green-300'
-              : statusMessage.type === 'error'
-              ? 'bg-red-900/30 border-red-600 text-red-300'
-              : 'bg-blue-900/30 border-blue-600 text-blue-300'
-          }`}>
-            <p className="text-sm font-medium">{statusMessage.message}</p>
-          </div>
-        )}
+
 
         <Card className="w-full bg-gray-900 border-gray-700 text-white">
           <CardContent>
