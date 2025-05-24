@@ -38,7 +38,7 @@ A Next.js application that uses AI to extract and analyze data from PDF bank sta
 
    Navigate to [http://localhost:3000](http://localhost:3000) in your browser
 
-## ✨ Features
+##  Features
 
 -  **Direct PDF Processing** - Upload bank statement PDFs with instant in-memory processing
 - **Document Type Validation** - Automatically detects if uploaded document is a bank statement
@@ -55,7 +55,7 @@ A Next.js application that uses AI to extract and analyze data from PDF bank sta
 -  **File Removal** - Easy file removal with "×" button for quick file replacement
 -  **Auto-Reset on Errors** - Easy recovery from upload mistakes without page refresh
 
-## 🛠️ Tech Stack
+##  Tech Stack
 
 | Category | Technology |
 |----------|------------|
