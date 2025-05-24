@@ -2,33 +2,6 @@
 
 A Next.js application that uses AI to extract and analyze data from PDF bank statements, providing structured information about transactions, balances, and account details.
 
-## ✨ Features
-
-- 📄 **Direct PDF Processing** - Upload bank statement PDFs with instant in-memory processing
-- 🔍 **Document Type Validation** - Automatically detects if uploaded document is a bank statement
-- 👤 **Account Information Extraction** - Automatically extracts account holder name and address
-- 📅 **Document Date Detection** - Identifies and parses statement dates in DD MMM YYYY format
-- 💰 **Transaction Analysis** - Lists all transactions with amounts, dates, and descriptions
-- 🔍 **Balance Reconciliation** - Shows starting/ending balances and performs accuracy checks
-- 🎨 **Modern Dark UI** - Professional dark theme with gradient headings and modern design
-- 🚀 **In-Memory Processing** - No disk storage for enhanced security and speed
-- 🤖 **AI-Powered** - Uses Anthropic Claude with native PDF document processing
-- 🔔 **Smart Notifications** - Contextual error messages and success notifications
-- 🔄 **Auto-Reset on Errors** - Easy recovery from upload mistakes without page refresh
-
-## 🛠️ Tech Stack
-
-| Category | Technology |
-|----------|------------|
-| **Frontend** | Next.js 14 with App Router |
-| **API Layer** | Next.js API Routes (REST) |
-| **UI Components** | Tailwind CSS + shadcn/ui |
-| **Notifications** | Inline status messages |
-| **PDF Processing** | Anthropic Claude native document processing |
-| **AI Processing** | Anthropic Claude Sonnet |
-| **Type Safety** | TypeScript throughout |
-| **Security** | In-memory processing, no data persistence |
-
 ## 🚀 Getting Started
 
 ### Prerequisites
@@ -66,13 +39,46 @@ ANTHROPIC_API_KEY=your-anthropic-api-key-here
 
    Navigate to [http://localhost:3000](http://localhost:3000) in your browser
 
+## ✨ Features
+
+- 📄 **Direct PDF Processing** - Upload bank statement PDFs with instant in-memory processing
+- 🔍 **Document Type Validation** - Automatically detects if uploaded document is a bank statement
+- 👤 **Account Information Extraction** - Automatically extracts account holder name and address
+- 📅 **Document Date Detection** - Identifies and parses statement dates in DD MMM YYYY format
+- 💰 **Transaction Analysis** - Lists all transactions with amounts, dates, and descriptions
+- 🔍 **Balance Reconciliation** - Shows starting/ending balances and performs accuracy checks
+- ✅ **Verification Status** - Smart status indicators showing if bank statement is verified based on reconciliation
+- 📊 **Transaction Count Display** - Real-time transaction count in status area
+- 🎨 **Modern Dark UI** - Professional dark theme with gradient headings and modern design
+- 🚀 **In-Memory Processing** - No disk storage for enhanced security and speed
+- 🤖 **AI-Powered** - Uses Anthropic Claude with native PDF document processing
+- 🔔 **Smart Status Messages** - Top-right corner inline status messages with color-coded feedback
+- ❌ **File Removal** - Easy file removal with "×" button for quick file replacement
+- 🔄 **Auto-Reset on Errors** - Easy recovery from upload mistakes without page refresh
+
+## 🛠️ Tech Stack
+
+| Category | Technology |
+|----------|------------|
+| **Frontend** | Next.js 14 with App Router |
+| **API Layer** | Next.js API Routes (REST) |
+| **UI Components** | Tailwind CSS + shadcn/ui |
+| **Notifications** | Inline status messages |
+| **PDF Processing** | Anthropic Claude native document processing |
+| **AI Processing** | Anthropic Claude Sonnet |
+| **Type Safety** | TypeScript throughout |
+| **Security** | In-memory processing, no data persistence |
+
 ## 📖 Usage
 
 1. **Upload PDF** - Click "Select File" or drag & drop a bank statement PDF
-2. **Document Validation** - AI automatically verifies it's a bank statement
-3. **Wait for Processing** - The AI analyzes the document directly (usually takes 10-20 seconds)
-4. **View Results** - See extracted account information, transactions, and reconciliation
-5. **Try Again** - If wrong document type, click "Try Again" or wait for auto-reset
+2. **File Management** - Remove selected file with "×" button if you want to choose a different one
+3. **Document Validation** - AI automatically verifies it's a bank statement
+4. **Wait for Processing** - The AI analyzes the document directly (usually takes 10-20 seconds)
+5. **View Results** - See extracted account information, transactions, and reconciliation
+6. **Status Monitoring** - Watch real-time status messages in top-right corner with transaction count
+7. **Verification Check** - Green status indicates verified bank statement, red indicates discrepancies
+8. **Try Again** - If wrong document type, click "Try Again" or wait for auto-reset
 
 ### Supported File Types
 - PDF files only
@@ -210,8 +216,10 @@ The application includes comprehensive error handling with smart notifications:
 - ❌ **Network connectivity issues** → Retry suggestions
 
 ### User Experience
-- 🎯 **Inline status messages** → All feedback shown as integrated UI notifications
+- 🎯 **Inline status messages** → All feedback shown as top-right corner notifications with color coding
 - ⚡ **Instant feedback** → File selection and drag & drop work immediately
+- ❌ **Easy file removal** → "×" button allows quick file replacement without page refresh
+- 📊 **Real-time status** → Transaction count and verification status displayed during and after analysis
 - 🔄 **Easy recovery** → No page refresh needed after errors
 
 ## 🔒 Security Features
@@ -230,7 +238,9 @@ The application includes comprehensive error handling with smart notifications:
 - 📱 **Responsive Design** → Works on desktop and mobile
 - 🎯 **Click-to-upload** → Entire drop zone is clickable
 - 📋 **Drag & Drop** → Intuitive file upload experience
-- 🔔 **Smart Notifications** → Context-aware inline status messages
+- ❌ **File Removal** → Clean "×" button for easy file replacement
+- 🔔 **Smart Status Messages** → Top-right corner color-coded notifications with verification status
+- 📊 **Transaction Counter** → Real-time transaction count display in status area
 - ⚡ **Loading States** → Clear feedback during processing
 
 ## 🤝 Contributing
