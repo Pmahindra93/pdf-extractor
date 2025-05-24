@@ -1,8 +1,8 @@
-# 🏦 Bank Statement Analyzer
+# Bank Statement Analyzer
 
 A Next.js application that uses AI to extract and analyze data from PDF bank statements, providing structured information about transactions, balances, and account details.
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
@@ -40,20 +40,20 @@ A Next.js application that uses AI to extract and analyze data from PDF bank sta
 
 ## ✨ Features
 
-- 📄 **Direct PDF Processing** - Upload bank statement PDFs with instant in-memory processing
-- 🔍 **Document Type Validation** - Automatically detects if uploaded document is a bank statement
-- 👤 **Account Information Extraction** - Automatically extracts account holder name and address
-- 📅 **Document Date Detection** - Identifies and parses statement dates in DD MMM YYYY format
-- 💰 **Transaction Analysis** - Lists all transactions with amounts, dates, and descriptions
-- 🔍 **Balance Reconciliation** - Shows starting/ending balances and performs accuracy checks
-- ✅ **Verification Status** - Smart status indicators showing if bank statement is verified based on reconciliation
-- 📊 **Transaction Count Display** - Real-time transaction count in status area
-- 🎨 **Modern Dark UI** - Professional dark theme with gradient headings and modern design
-- 🚀 **In-Memory Processing** - No disk storage for enhanced security and speed
-- 🤖 **AI-Powered** - Uses Anthropic Claude with native PDF document processing
-- 🔔 **Smart Status Messages** - Top-right corner inline status messages with color-coded feedback
-- ❌ **File Removal** - Easy file removal with "×" button for quick file replacement
-- 🔄 **Auto-Reset on Errors** - Easy recovery from upload mistakes without page refresh
+-  **Direct PDF Processing** - Upload bank statement PDFs with instant in-memory processing
+- **Document Type Validation** - Automatically detects if uploaded document is a bank statement
+-  **Account Information Extraction** - Automatically extracts account holder name and address
+-  **Document Date Detection** - Identifies and parses statement dates in DD MMM YYYY format
+-  **Transaction Analysis** - Lists all transactions with amounts, dates, and descriptions
+-  **Balance Reconciliation** - Shows starting/ending balances and performs accuracy checks
+-  **Verification Status** - Smart status indicators showing if bank statement is verified based on reconciliation
+-  **Transaction Count Display** - Real-time transaction count in status area
+-  **Modern Dark UI** - Professional dark theme with gradient headings and modern design
+-  **In-Memory Processing** - No disk storage for enhanced security and speed
+-  **AI-Powered** - Uses Anthropic Claude with native PDF document processing
+-  **Smart Status Messages** - Top-right corner inline status messages with color-coded feedback
+-  **File Removal** - Easy file removal with "×" button for quick file replacement
+-  **Auto-Reset on Errors** - Easy recovery from upload mistakes without page refresh
 
 ## 🛠️ Tech Stack
 
@@ -68,7 +68,7 @@ A Next.js application that uses AI to extract and analyze data from PDF bank sta
 | **Type Safety** | TypeScript throughout |
 | **Security** | In-memory processing, no data persistence |
 
-## 📖 Usage
+##  Usage
 
 1. **Upload PDF** - Click "Select File" or drag & drop a bank statement PDF
 2. **File Management** - Remove selected file with "×" button if you want to choose a different one
@@ -84,7 +84,7 @@ A Next.js application that uses AI to extract and analyze data from PDF bank sta
 - Maximum file size: 10MB
 - Bank statements only (other document types will be rejected)
 
-## 🔌 API Routes
+##  API Routes
 
 ### `POST /api/analyze`
 Directly analyze a PDF file with document type validation.
@@ -128,7 +128,7 @@ Directly analyze a PDF file with document type validation.
 }
 ```
 
-## 📁 Project Structure
+##  Project Structure
 
 ```
 bank-statement-analyzer/
@@ -155,7 +155,7 @@ bank-statement-analyzer/
 └── 📄 README.md                        # This file
 ```
 
-## 🏗️ Architecture
+##  Architecture
 
 ```
     A[User uploads PDF] --> B[/api/analyze endpoint]
@@ -182,7 +182,7 @@ bank-statement-analyzer/
 7. **Smart Error Handling** - Context-aware error messages with recovery options
 8. **Instant Results** - Data displayed with PDF preview and reconciliation details
 
-## 🔧 Development
+##  Development
 
 ### Available Scripts
 
@@ -193,55 +193,40 @@ npm run start        # Start production server
 npm run lint         # Run ESLint
 ```
 
-### Environment Variables
 
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `ANTHROPIC_API_KEY` | Anthropic Claude API key | Yes |
 
-## 🚨 Error Handling
+##  Error Handling
 
 The application includes comprehensive error handling with smart notifications:
 
 ### Document Type Errors
-- ❌ **Non-bank statements** → "Wrong document type" with specific document identification
-- 🔄 **Auto-recovery** → "Try Again" button or 2-second auto-reset
+-  **Non-bank statements** → "Wrong document type" with specific document identification
+-  **Auto-recovery** → "Try Again" button or 2-second auto-reset
 
 ### Processing Errors
-- ❌ **Invalid file types** (non-PDF) → Immediate validation with inline status messages
-- ❌ **Files exceeding size limits** → 10MB limit with clear messaging
-- ❌ **AI processing failures** → Contextual error messages
-- ❌ **Network connectivity issues** → Retry suggestions
+-  **Invalid file types** (non-PDF) → Immediate validation with inline status messages
+-  **Files exceeding size limits** → 10MB limit with clear messaging
+-  **AI processing failures** → Contextual error messages
+-  **Network connectivity issues** → Retry suggestions
 
 ### User Experience
-- 🎯 **Inline status messages** → All feedback shown as top-right corner notifications with color coding
-- ⚡ **Instant feedback** → File selection and drag & drop work immediately
-- ❌ **Easy file removal** → "×" button allows quick file replacement without page refresh
-- 📊 **Real-time status** → Transaction count and verification status displayed during and after analysis
-- 🔄 **Easy recovery** → No page refresh needed after errors
+-  **Inline status messages** → All feedback shown as top-right corner notifications with color coding
+-  **Instant feedback** → File selection and drag & drop work immediately
+-  **Easy file removal** → "×" button allows quick file replacement without page refresh
+-  **Real-time status** → Transaction count and verification status displayed during and after analysis
+-  **Easy recovery** → No page refresh needed after errors
 
-## 🔒 Security Features
+##  Security Features
 
-- ✅ **In-memory processing** → No sensitive data stored on disk
-- ✅ **Document type validation** → Only bank statements processed
-- ✅ **File type validation** → PDF files only
-- ✅ **File size limits** → 10MB maximum
-- ✅ **API key environment protection** → Secure credential handling
-- ✅ **Input sanitization** → All user inputs validated
+-  **In-memory processing** → No sensitive data stored on disk
+-  **Document type validation** → Only bank statements processed
+-  **File type validation** → PDF files only
+-  **File size limits** → 10MB maximum
+-  **API key environment protection** → Secure credential handling
+-  **Input sanitization** → All user inputs validated
 
-## 🎨 UI/UX Features
 
-- 🌙 **Modern Dark Theme** → Professional black background with white text
-- 🌈 **Gradient Headings** → AI-Powered Statement Analysis with blue-purple gradient
-- 📱 **Responsive Design** → Works on desktop and mobile
-- 🎯 **Click-to-upload** → Entire drop zone is clickable
-- 📋 **Drag & Drop** → Intuitive file upload experience
-- ❌ **File Removal** → Clean "×" button for easy file replacement
-- 🔔 **Smart Status Messages** → Top-right corner color-coded notifications with verification status
-- 📊 **Transaction Counter** → Real-time transaction count display in status area
-- ⚡ **Loading States** → Clear feedback during processing
-
-## 🤝 Contributing
+##  Contributing
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
@@ -249,11 +234,11 @@ The application includes comprehensive error handling with smart notifications:
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## 📝 License
+##  License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🆘 Troubleshooting
+##  Troubleshooting
 
 ### Common Issues
 
@@ -289,4 +274,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-Made with ❤️ using Next.js and Anthropic Claude
+
