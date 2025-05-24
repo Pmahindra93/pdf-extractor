@@ -15,7 +15,7 @@ A Next.js application that uses AI to extract and analyze data from PDF bank sta
 1. **Clone the repository**
    ```bash
    git clone <repository-url>
-   cd bank-statement-analyzer
+   cd pdf-extractor
    ```
 
 2. **Install dependencies**
