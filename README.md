@@ -157,8 +157,7 @@ bank-statement-analyzer/
 
 ## 🏗️ Architecture
 
-```mermaid
-graph TD
+```
     A[User uploads PDF] --> B[/api/analyze endpoint]
     B --> C[Document type validation]
     C --> D{Is bank statement?}
