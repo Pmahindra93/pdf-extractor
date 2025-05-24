@@ -87,7 +87,7 @@ async function processWithAI(base64PDF: string): Promise<BankStatement> {
     const response = await anthropic.messages.create({
       model: 'claude-sonnet-4-20250514',
       max_tokens: 4000,
-      system: "You are a financial document analysis assistant. First determine if this is a bank statement. If not, return an error. If yes, extract the data accurately.",
+      system: "You are a financial document analysis assistant. First determine if this is a bank statement. If not, return an error. If yes, extract the data accurately. Provide a null value for any unknown field. Do not make up any data.",
       messages: [
         {
           role: 'user',
