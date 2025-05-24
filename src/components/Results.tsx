@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { AlertCircle, CheckCircle2, RotateCcw } from "lucide-react"
-// Using console.log instead of toasts to avoid hydration issues
+
 import type { BankStatement } from '../types'
 
 interface ResultsProps {
