@@ -29,17 +29,29 @@ export default function Results({ results, file, onAnalyzeAnother }: ResultsProp
 
   return (
     <div className="min-h-screen bg-black text-white p-6">
-      {/* Transaction Count Status - Top Right Corner */}
+      {/* Analysis Status - Top Right Corner */}
       <div className="fixed top-4 right-4 z-50 max-w-sm">
         <div className="p-4 bg-gray-900/95 border border-gray-700 rounded-lg shadow-lg">
-          <div className="flex items-center justify-between">
+          <div className="space-y-3">
+            {/* Analysis Status Message */}
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-              <span className="text-green-400 font-medium text-sm">Analysis Complete</span>
+              <div className={`w-2 h-2 rounded-full animate-pulse ${
+                results.reconciliation.isReconciled ? 'bg-green-400' : 'bg-red-400'
+              }`}></div>
+              <span className={`font-medium text-sm ${
+                results.reconciliation.isReconciled ? 'text-green-400' : 'text-red-400'
+              }`}>
+                {results.reconciliation.isReconciled
+                  ? 'Analysis Complete - Bank statement is Verified'
+                  : 'Analysis Complete - Bank Statement not verified'
+                }
+              </span>
             </div>
-            <div className="text-right ml-4">
-              <p className="text-xs text-gray-400">Transactions</p>
-              <p className="text-lg font-bold text-white">{results.transactions.length}</p>
+
+            {/* Transaction Count */}
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-gray-400">Transactions Found:</span>
+              <span className="text-lg font-bold text-white">{results.transactions.length}</span>
             </div>
           </div>
         </div>
