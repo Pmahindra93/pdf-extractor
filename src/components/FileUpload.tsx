@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { UploadCloud, AlertCircle, Loader2 } from "lucide-react"
+import { UploadCloud, AlertCircle, Loader2, X } from "lucide-react"
 // Using inline status messages instead of toasts to avoid hydration issues
 import type { BankStatement, ErrorResponse } from '../types'
 import Results from './Results'
@@ -28,6 +28,18 @@ export default function FileUpload() {
   }
 
   const clearStatus = () => setStatusMessage({ type: null, message: '' })
+
+  const handleRemoveFile = () => {
+    setFile(null)
+    setError(null)
+    setResults(null)
+    clearStatus()
+    // Clear file input value
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''
+    }
+    showStatus('info', 'File removed. You can now select a new file.')
+  }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0] ?? null
@@ -218,13 +230,40 @@ export default function FileUpload() {
                 ) : (
                   <>
                     <UploadCloud className="h-12 w-12 text-gray-400 mx-auto mb-3" />
-                      <p className="text-gray-200 mb-2">
-                      {file ? file.name : 'Drag and drop your PDF here, or click to browse'}
-                    </p>
-                    {!file && (
+                    {file ? (
+                      <div className="relative inline-block">
+                        <div className="bg-gray-800 border border-gray-600 rounded-lg px-4 py-3 mb-2">
+                          <div className="flex items-center justify-between gap-3">
+                            <div className="flex items-center gap-2">
+                              <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                              <span className="text-gray-200 font-medium">{file.name}</span>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleRemoveFile()
+                              }}
+                              className="text-gray-400 hover:text-red-400 transition-colors p-1 rounded-full hover:bg-gray-700"
+                              title="Remove file"
+                            >
+                              <X size={16} />
+                            </button>
+                          </div>
+                        </div>
                         <p className="text-sm text-gray-400">
-                        PDF files only, max 10MB
-                      </p>
+                          Ready for analysis, or click the × to remove
+                        </p>
+                      </div>
+                    ) : (
+                      <>
+                        <p className="text-gray-200 mb-2">
+                          Drag and drop your PDF here, or click to browse
+                        </p>
+                        <p className="text-sm text-gray-400">
+                          PDF files only, max 10MB
+                        </p>
+                      </>
                     )}
                   </>
                 )}
