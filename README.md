@@ -26,7 +26,7 @@ A Next.js application that uses AI to extract and analyze data from PDF bank sta
 3. **Set up environment variables**
 
    Create a `.env.local` file in the root directory:
-   ```env
+   ```bash
 ANTHROPIC_API_KEY=your-anthropic-api-key-here
    ```
 
