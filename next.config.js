@@ -6,17 +6,7 @@
 
 /** @type {import("next").NextConfig} */
 const nextConfig = {
-  reactStrictMode: true, // Re-enabled since we fixed the hydration issues
-  experimental: {
-    serverComponentsExternalPackages: ['pdf-parse'],
-  },
-  webpack: (config, { isServer }) => {
-    if (isServer) {
-      config.externals = config.externals || []
-      config.externals.push('pdf-parse')
-    }
-    return config
-  }
+  reactStrictMode: true,
 };
 
 module.exports = nextConfig;
